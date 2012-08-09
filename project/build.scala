@@ -17,7 +17,9 @@ object Builds extends Build {
   lazy val root = Project("root", file("."),
     settings = buildSettings ++ Seq(name := "tetrix.scala"))
   lazy val library = Project("library", file("library"),
-    settings = buildSettings ++ Seq())
+    settings = buildSettings ++ Seq(
+      libraryDependencies += "org.specs2" %% "specs2" % "1.12" % "test"
+    ))
   lazy val swing = Project("swing", file("swing"),
     settings = buildSettings ++ Seq(
       fork in run := true,
