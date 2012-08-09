@@ -7,7 +7,7 @@ class StageSpec extends Specification { def is = sequential                   ^
     """change the blocks in the view,"""                                      ! left1^
     """as long as it doesn't hit the wall"""                                  ! leftWall1^
                                                                               p^
-  "Moving to the left the current piece should"                               ^
+  "Moving to the right the current piece should"                              ^
     """change the blocks in the view."""                                      ! right1^
                                                                               end
   
