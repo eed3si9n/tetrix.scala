@@ -1,18 +1,28 @@
 package com.eed3si9n.tetrix
 
 class AbstractUI {
-  private[this] val stage = new Stage((10, 20))
+  import Stage._
+  import java.{util => ju}
+
+  private[this] var state = newState(Block((0, 0), TKind) :: Nil)
+  private[this] val timer = new ju.Timer
+  timer.scheduleAtFixedRate(new ju.TimerTask {
+    def run { state = tick(state) }
+  }, 0, 1000) 
+
   def left() {
-    stage.moveLeft()
+    state = moveLeft(state)
   }
   def right() {
-    stage.moveRight()
+    state = moveRight(state)
   }
   def up() {
+    state = rotateCW(state)
   }
   def down() {
+    state = tick(state)
   }
   def space() {
   }
-  def view: GameView = stage.view
+  def view: GameView = state.view
 }
