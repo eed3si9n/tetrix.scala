@@ -8,13 +8,27 @@ case object OKind extends PieceKind
 case object SKind extends PieceKind
 case object TKind extends PieceKind
 case object ZKind extends PieceKind
+case object PieceKind {
+  def apply(x: Int): PieceKind = x match {
+    case 0 => IKind
+    case 1 => JKind
+    case 2 => LKind
+    case 3 => OKind
+    case 4 => SKind
+    case 5 => TKind
+    case _ => ZKind
+  } 
+}
 
 case class Block(pos: (Int, Int), kind: PieceKind)
 
-case class GameView(blocks: Seq[Block], gridSize: (Int, Int), current: Seq[Block])
+case class GameView(blocks: Seq[Block], gridSize: (Int, Int),
+  current: Seq[Block], miniGridSize: (Int, Int), next: Seq[Block])
 
-case class GameState(blocks: Seq[Block], gridSize: (Int, Int), currentPiece: Piece) {
-  def view: GameView = GameView(blocks, gridSize, currentPiece.current)
+case class GameState(blocks: Seq[Block], gridSize: (Int, Int),
+    currentPiece: Piece, nextPiece: Piece, kinds: Seq[PieceKind]) {
+  def view: GameView = GameView(blocks, gridSize,
+    currentPiece.current, (4, 4), nextPiece.current)
 }
 
 case class Piece(pos: (Double, Double), kind: PieceKind, locals: Seq[(Double, Double)]) {
@@ -34,7 +48,13 @@ case class Piece(pos: (Double, Double), kind: PieceKind, locals: Seq[(Double, Do
 }
 case object Piece {
   def apply(pos: (Double, Double), kind: PieceKind): Piece =
-    kind match {
-      case TKind => Piece(pos, kind, Seq((-1.0, 0.0), (0.0, 0.0), (1.0, 0.0), (0.0, 1.0)))
-    }
+    Piece(pos, kind, kind match {
+      case IKind => Seq((-1.5, 0.0), (-0.5, 0.0), (0.5, 0.0), (1.5, 0.0))      
+      case JKind => Seq((-1.0, 0.5), (0.0, 0.5), (1.0, 0.5), (1.0, -0.5))
+      case LKind => Seq((-1.0, 0.5), (0.0, 0.5), (1.0, 0.5), (-1.0, -0.5))
+      case OKind => Seq((-0.5, 0.5), (0.5, 0.5), (-0.5, -0.5), (0.5, -0.5))
+      case SKind => Seq((0.0, 0.5), (1.0, 0.5), (-1.0, -0.5), (0.0, -0.5))
+      case TKind => Seq((-1.0, 0.0), (0.0, 0.0), (1.0, 0.0), (0.0, 1.0))
+      case ZKind => Seq((-1.0, 0.5), (0.0, 0.5), (0.0, -0.5), (1.0, -0.5))
+    })
 }

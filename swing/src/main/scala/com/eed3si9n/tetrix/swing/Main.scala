@@ -29,30 +29,35 @@ object Main extends SimpleSwingApplication {
   }
   def onPaint(g: Graphics2D) {
     val view = ui.view
-
+    drawBoard(g, (0, 0), view.gridSize, view.blocks, view.current)
+    drawBoard(g, (12 * (blockSize + blockMargin), 0),
+      view.miniGridSize, view.next, Nil) 
+  }
+  def drawBoard(g: Graphics2D, offset: (Int, Int), gridSize: (Int, Int), 
+      blocks: Seq[Block], current: Seq[Block]) {
     def buildRect(pos: (Int, Int)): Rectangle =
-      new Rectangle(pos._1 * (blockSize + blockMargin),
-        (view.gridSize._2 - pos._2 - 1) * (blockSize + blockMargin),
+      new Rectangle(offset._1 + pos._1 * (blockSize + blockMargin),
+        offset._2 + (gridSize._2 - pos._2 - 1) * (blockSize + blockMargin),
         blockSize, blockSize)
     def drawEmptyGrid {
       g setColor bluishLigherGray
       for {
-        x <- 0 to view.gridSize._1 - 1
-        y <- 0 to view.gridSize._2 - 2
+        x <- 0 to gridSize._1 - 1
+        y <- 0 to gridSize._2 - 1
         val pos = (x, y)
       } g draw buildRect(pos)      
     }
     def drawBlocks {
       g setColor bluishEvenLigher
-      view.blocks foreach { b => g fill buildRect(b.pos) }
+      blocks foreach { b => g fill buildRect(b.pos) }
     }
     def drawCurrent {
       g setColor bluishSilver
-      view.current foreach { b => g fill buildRect(b.pos) }
+      current foreach { b => g fill buildRect(b.pos) }
     }
     drawEmptyGrid
     drawBlocks
-    drawCurrent
+    drawCurrent  
   }
 
   def top = new MainFrame {
