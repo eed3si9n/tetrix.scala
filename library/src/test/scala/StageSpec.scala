@@ -24,11 +24,14 @@ class StageSpec extends Specification { def is = sequential ^
                                                             p^
   "Dropping the current piece should"                       ^
     """tick the piece until it hits something"""            ! drop1^
+                                                            p^
+  "Spawning a new piece should"                             ^
+    """end the game it hits something."""                   ! spawn1^
                                                             end
   
   import com.eed3si9n.tetrix._
   import Stage._
-  val ttt = TKind :: TKind :: TKind :: Nil
+  val ttt = Nil padTo (20, TKind)
   val s1 = newState(Block((0, 0), TKind) :: Nil, ttt)
   val s2 = newState(Block((3, 18), TKind) :: Nil, ttt)
   val s3 = newState(Seq(
@@ -82,4 +85,7 @@ class StageSpec extends Specification { def is = sequential ^
       (0, 0), (4, 0), (5, 0), (6, 0), (5, 1),
       (4, 18), (5, 18), (6, 18), (5, 19)
     ).only.inOrder
+  def spawn1 =
+    Function.chain(Nil padTo (10, drop))(s1).status must_==
+    GameOver
 }

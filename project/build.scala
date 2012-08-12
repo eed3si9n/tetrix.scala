@@ -11,14 +11,17 @@ object Builds extends Build {
     scalaVersion := "2.9.2",
     scalacOptions := Seq("-deprecation", "-unchecked"),
     resolvers ++= Seq(
-      "sonatype-public" at "https://oss.sonatype.org/content/repositories/public")
+      "sonatype-public" at "https://oss.sonatype.org/content/repositories/public",
+      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/")
   )
 
   lazy val root = Project("root", file("."),
     settings = buildSettings ++ Seq(name := "tetrix.scala"))
   lazy val library = Project("library", file("library"),
     settings = buildSettings ++ Seq(
-      libraryDependencies += "org.specs2" %% "specs2" % "1.12" % "test"
+      libraryDependencies ++= Seq(
+        "org.specs2" %% "specs2" % "1.12" % "test",
+        "com.typesafe.akka" % "akka-actor" % "2.0.2")
     ))
   lazy val swing = Project("swing", file("swing"),
     settings = buildSettings ++ Seq(
