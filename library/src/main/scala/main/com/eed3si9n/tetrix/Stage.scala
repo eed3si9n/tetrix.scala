@@ -3,10 +3,10 @@ package com.eed3si9n.tetrix
 object Stage {
   import scala.annotation.tailrec
 
-  def newState(blocks: Seq[Block], kinds: Seq[PieceKind]): GameState = {
-    val size = (10, 20)
+  def newState(blocks: Seq[Block], gridSize: (Int, Int),
+      kinds: Seq[PieceKind]): GameState = {
     val dummy = Piece((0, 0), TKind)
-    val withNext = spawn(GameState(Nil, size, dummy, dummy, kinds, ActiveStatus)).
+    val withNext = spawn(GameState(Nil, gridSize, dummy, dummy, kinds, ActiveStatus)).
       copy(blocks = blocks)
     spawn(withNext)
   }
