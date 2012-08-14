@@ -1,6 +1,6 @@
 import org.specs2._
 
-class StageSpec extends Specification { def is = sequential ^
+class StageSpec extends Specification with StateExample { def is = sequential ^
   "This is a specification to check Stage"                  ^
                                                             p^
   "The current piece should"                                ^
@@ -27,17 +27,14 @@ class StageSpec extends Specification { def is = sequential ^
                                                             p^
   "Spawning a new piece should"                             ^
     """end the game it hits something."""                   ! spawn1^
+                                                            p^
+  "Deleting a full row should"                              ^
+    """increment the line count."""                         ! line1^
                                                             end
   
   import com.eed3si9n.tetrix._
   import Stage._
-  val ttt = Nil padTo (20, TKind)
-  val s1 = newState(Block((0, 0), TKind) :: Nil, (10, 20), ttt)
-  val s2 = newState(Block((3, 18), TKind) :: Nil, (10, 20), ttt)
-  val s3 = newState(Seq(
-      (0, 0), (1, 0), (2, 0), (3, 0), (7, 0), (8, 0), (9, 0))
-    map { Block(_, TKind) }, (10, 20), ttt)
-  val s4 = newState(Nil, (10, 20), OKind :: OKind :: Nil)
+
   def init1 =
     (s4.currentPiece.kind must_== OKind) and
     (s4.blocks map {_.pos} must contain(
@@ -88,4 +85,8 @@ class StageSpec extends Specification { def is = sequential ^
   def spawn1 =
     Function.chain(Nil padTo (10, drop))(s1).status must_==
     GameOver
+  def line1 =
+    (s3.lineCount must_== 0) and
+    (Function.chain(Nil padTo (19, tick))(s3).
+    lineCount must_== 1)
 }

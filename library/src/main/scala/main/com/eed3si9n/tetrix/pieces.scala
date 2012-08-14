@@ -28,13 +28,14 @@ case class Block(pos: (Int, Int), kind: PieceKind)
 
 case class GameView(blocks: Seq[Block], gridSize: (Int, Int),
   current: Seq[Block], miniGridSize: (Int, Int), next: Seq[Block],
-  status: GameStatus)
+  status: GameStatus, lineCount: Int)
 
 case class GameState(blocks: Seq[Block], gridSize: (Int, Int),
     currentPiece: Piece, nextPiece: Piece, kinds: Seq[PieceKind],
-    status: GameStatus) {
+    status: GameStatus, lineCount: Int) {
   def view: GameView = GameView(blocks, gridSize,
-    currentPiece.current, (4, 4), nextPiece.current, status)
+    currentPiece.current, (4, 4), nextPiece.current,
+    status, lineCount)
 }
 
 case class Piece(pos: (Double, Double), kind: PieceKind, locals: Seq[(Double, Double)]) {
