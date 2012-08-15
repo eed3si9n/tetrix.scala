@@ -3,6 +3,7 @@ trait StateExample {
   import Stage._
 
   def ttt = Nil padTo (20, TKind)
+  def s0 = newState(Nil, (10, 20), ttt)
   def s1 = newState(Block((0, 0), TKind) :: Nil, (10, 20), ttt)
   def s2 = newState(Block((3, 18), TKind) :: Nil, (10, 20), ttt)
   def s3 = newState(Seq(

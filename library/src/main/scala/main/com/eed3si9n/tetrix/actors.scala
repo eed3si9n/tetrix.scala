@@ -45,3 +45,31 @@ class StageActor(stateActor: ActorRef) extends Actor {
     stateActor ! SetState(s2)
   }
 }
+
+sealed trait AgentMessage
+case class BestMove(s: GameState) extends AgentMessage
+
+class AgentActor(stageActor: ActorRef) extends Actor {
+  private[this] val agent = new Agent
+
+  def receive = {
+    case BestMove(s: GameState) =>
+      val message = agent.bestMove(s)
+      stageActor ! message
+  }
+}
+
+class GameMasterActor(stateActor: ActorRef, agentActor: ActorRef) extends Actor {
+  def receive = {
+    case Tick => 
+      val s = getState
+      if (s.status != GameOver) {
+        agentActor ! BestMove(getState)
+      } 
+  }
+
+  private[this] def getState: GameState = {
+    val future = (stateActor ? GetState)(1 second).mapTo[GameState]
+    Await.result(future, 1 second)
+  } 
+}
