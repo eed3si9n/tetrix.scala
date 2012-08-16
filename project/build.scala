@@ -12,7 +12,9 @@ object Builds extends Build {
     scalacOptions := Seq("-deprecation", "-unchecked"),
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/repositories/public",
-      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/")
+      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"),
+    initialCommands in console := """import com.eed3si9n.tetrix._
+                                    |import Stage._""".stripMargin
   )
 
   lazy val root = Project("root", file("."),
