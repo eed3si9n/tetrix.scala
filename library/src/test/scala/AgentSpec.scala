@@ -10,6 +10,7 @@ class AgentSpec extends Specification with StateExample { def is = sequential ^
                                                             p^
   "Penalty function should"                                 ^  
     """penalize having blocks stacked up high"""            ! penalty1^
+    """penalize having blocks covering other blocks"""      ! penalty2^
                                                             p^
   "ActionSeqs function should"                              ^  
     """list out potential action sequences"""               ! actionSeqs1^
@@ -42,6 +43,12 @@ class AgentSpec extends Specification with StateExample { def is = sequential ^
     val s = newState(Seq((1, 0))
     map { Block(_, ZKind) }, (10, 20), TKind :: TKind :: Nil)
     agent.penalty(s) must_== 1.0
+  }
+  def penalty2 = {
+    val s = newState(Seq(
+      (0, 0), (2, 0), (0, 1), (1, 1), (2, 1), (3, 1))
+      map { Block(_, TKind) }, (10, 20), TKind :: TKind :: Nil)
+    agent.penalty(s) must beCloseTo(4.89, 0.01) 
   }
   def actionSeqs1 = {
     val s = newState(Nil, (10, 20), TKind :: TKind :: Nil)

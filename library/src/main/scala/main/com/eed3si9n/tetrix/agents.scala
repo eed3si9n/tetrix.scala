@@ -10,24 +10,43 @@ class Agent {
     else reward(state) - penalty(state) / 10.0
   def reward(s: GameState): Double = s.lineCount.toDouble
   def penalty(s: GameState): Double = {
-    val heights = s.unload(s.currentPiece).blocks map {
-      _.pos} groupBy {_._1} map { case (k, v) => v.map({_._2 + 1}).max }
-    math.sqrt(heights map { x => x * x } sum)
+    val groupedByX = s.unload(s.currentPiece).blocks map {_.pos} groupBy {_._1}
+    val heights = groupedByX map { case (k, v) => v.map({_._2 + 1}).max }
+    val coverups = groupedByX flatMap { case (k, vs) => 
+      vs.map(_._2).sorted.zipWithIndex.dropWhile(x => x._1 == x._2).map(_._1 + 1) }
+    math.sqrt( (heights ++ coverups) map { x => x * x } sum)
   }
   def bestMove(s0: GameState): StageMessage = {
     var retval: Seq[StageMessage] = Nil 
     var current: Double = minUtility
-    actionSeqs(s0) foreach { seq =>
-      val ms = seq ++ Seq(Drop)
-      val u = utility(Function.chain(ms map {toTrans})(s0))
-      if (u > current) {
-        current = u
-        retval = seq
-      } // if
-    }
+    stopWatch("bestMove") {
+      val nodes = actionSeqs(s0) map { seq =>
+        val ms = seq ++ Seq(Drop)
+        val s1 = Function.chain(ms map {toTrans})(s0)
+        val u = utility(s1)
+        if (u > current) {
+          current = u
+          retval = seq
+        } // if
+        SearchNode(s1, ms, u)
+      }
+      nodes foreach { node =>
+        actionSeqs(node.state) foreach { seq =>
+          val ms = seq ++ Seq(Drop)
+          val s2 = Function.chain(ms map {toTrans})(node.state)
+          val u = utility(s2)
+          if (u > current) {
+            current = u
+            retval = node.actions ++ seq
+          } // if
+        }
+      }
+    } // stopWatch
     println("selected " + retval + " " + current.toString)
-    retval.headOption getOrElse {Tick}
+    retval.headOption getOrElse {Drop}
   }
+  case class SearchNode(state: GameState, actions: Seq[StageMessage], score: Double)
+
   def actionSeqs(s0: GameState): Seq[Seq[StageMessage]] = {
     val rotationSeqs: Seq[Seq[StageMessage]] =
       (0 to orientation(s0.currentPiece.kind) - 1).toSeq map { x =>
@@ -78,5 +97,12 @@ class Agent {
       else rightLimit(n + 1, next)
     }
     (leftLimit(0, s0), rightLimit(0, s0))
+  }
+  private[this] def stopWatch[A](name: String)(arg: => A): A = {
+    val t0 = System.currentTimeMillis
+    val retval: A = arg
+    val t1 = System.currentTimeMillis
+    println(name + " took " + (t1 - t0).toString + " ms")
+    retval
   }
 }
