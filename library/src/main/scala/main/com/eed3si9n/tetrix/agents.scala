@@ -11,10 +11,21 @@ class Agent {
   def reward(s: GameState): Double = s.lineCount.toDouble
   def penalty(s: GameState): Double = {
     val groupedByX = s.unload(s.currentPiece).blocks map {_.pos} groupBy {_._1}
-    val heights = groupedByX map { case (k, v) => v.map({_._2 + 1}).max }
-    val coverups = groupedByX flatMap { case (k, vs) => 
-      vs.map(_._2).sorted.zipWithIndex.dropWhile(x => x._1 == x._2).map(_._1 + 1) }
-    math.sqrt( (heights ++ coverups) map { x => x * x } sum)
+    val heights = groupedByX map { case (k, v) => (k, v.map({_._2 + 1}).max) }
+    val heightWeight = 11
+    val weightedHeights = heights.values map {heightWeight * _}
+    val hWithDefault = heights withDefault { x =>
+      if (x < 0 || x > s.gridSize._1 - 1) s.gridSize._2
+      else 0
+    }
+    val crevassesWeight = 10
+    val crevasses = (-1 to s.gridSize._1 - 2) flatMap { x =>
+      val down = hWithDefault(x + 1) - hWithDefault(x)
+      val up = hWithDefault(x + 2) - hWithDefault(x + 1)
+      if (down < -2 && up > 2) Some(math.min(crevassesWeight * hWithDefault(x), crevassesWeight * hWithDefault(x + 2)))
+      else None
+    }
+    math.sqrt((weightedHeights ++ crevasses) map { x => x * x } sum)
   }
   def bestMove(s0: GameState): StageMessage = bestMoves(s0).headOption getOrElse {Drop}
   def bestMoves(s0: GameState): Seq[StageMessage] = {
