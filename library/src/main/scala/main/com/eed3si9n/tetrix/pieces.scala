@@ -1,13 +1,13 @@
 package com.eed3si9n.tetrix
 
-sealed trait PieceKind
-case object IKind extends PieceKind
-case object JKind extends PieceKind
-case object LKind extends PieceKind
-case object OKind extends PieceKind
-case object SKind extends PieceKind
-case object TKind extends PieceKind
-case object ZKind extends PieceKind
+sealed trait PieceKind { def toInt: Int }
+case object IKind extends PieceKind { def toInt = 0 }
+case object JKind extends PieceKind { def toInt = 1 }
+case object LKind extends PieceKind { def toInt = 2 }
+case object OKind extends PieceKind { def toInt = 3 }
+case object SKind extends PieceKind { def toInt = 4 }
+case object TKind extends PieceKind { def toInt = 5 }
+case object ZKind extends PieceKind { def toInt = 6 }
 case object PieceKind {
   def apply(x: Int): PieceKind = x match {
     case 0 => IKind
@@ -16,7 +16,7 @@ case object PieceKind {
     case 3 => OKind
     case 4 => SKind
     case 5 => TKind
-    case _ => ZKind
+    case 6 => ZKind
   } 
 }
 

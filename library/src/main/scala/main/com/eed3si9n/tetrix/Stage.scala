@@ -3,6 +3,8 @@ package com.eed3si9n.tetrix
 object Stage {
   import scala.annotation.tailrec
 
+  def randomStream(random: util.Random): Stream[PieceKind] =
+    PieceKind(random.nextInt(7))  #:: randomStream(random)
   def newState(blocks: Seq[Block], gridSize: (Int, Int),
       kinds: Seq[PieceKind]): GameState = {
     val dummy = Piece((0, 0), TKind)
@@ -64,4 +66,12 @@ object Stage {
       (s.blocks map {_.pos} intersect currentPoss).isEmpty) Some(s)
     else None
   }
+  def toTrans(message: StageMessage): GameState => GameState =
+    message match {
+      case MoveLeft  => moveLeft
+      case MoveRight => moveRight
+      case RotateCW  => rotateCW
+      case Tick      => tick
+      case Drop      => drop 
+    }
 }

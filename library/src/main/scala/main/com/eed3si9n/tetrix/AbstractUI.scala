@@ -9,8 +9,8 @@ class AbstractUI {
   import scala.collection.immutable.Stream
   implicit val timeout = Timeout(100 millisecond)
 
-  private[this] val initialState = Stage.newState(Block((0, 0), TKind) :: Nil,
-    (10, 23), randomStream(new util.Random))
+  private[this] val initialState = Stage.newState(Nil,
+    (10, 23), Stage.randomStream(new util.Random))
   private[this] val system = ActorSystem("TetrixSystem")
   private[this] val stateActor = system.actorOf(Props(new StateActor(
     initialState)), name = "stateActor")
@@ -24,8 +24,6 @@ class AbstractUI {
     0 millisecond, 700 millisecond, playerActor, Tick)
   private[this] val masterTickTimer = system.scheduler.schedule(
     0 millisecond, 681 millisecond, masterActor, Tick)
-  private[this] def randomStream(random: util.Random): Stream[PieceKind] =
-    PieceKind(random.nextInt % 7) #:: randomStream(random)
 
   def left()  { playerActor ! MoveLeft }
   def right() { playerActor ! MoveRight }
