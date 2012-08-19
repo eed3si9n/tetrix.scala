@@ -25,7 +25,7 @@ object Scripter {
     val s0 = newState(Nil, (10, 23), pieces.toSeq)
     var s: GameState = s0
     val agent = new Agent
-    while (s.status != GameOver) {
+    while (s.status == ActiveStatus) {
       val ms = agent.bestMoves(s)
       s = Function.chain(ms map {toTrans})(s)
     }

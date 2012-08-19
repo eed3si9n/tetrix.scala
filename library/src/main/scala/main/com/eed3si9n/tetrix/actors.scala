@@ -26,6 +26,7 @@ case object MoveRight extends StageMessage
 case object RotateCW extends StageMessage
 case object Tick extends StageMessage
 case object Drop extends StageMessage
+case object Attack extends StageMessage
 
 class StageActor(stateActor: ActorRef) extends Actor {
   import Stage._
@@ -36,13 +37,19 @@ class StageActor(stateActor: ActorRef) extends Actor {
     case RotateCW  => updateState {rotateCW}
     case Tick      => updateState {tick}
     case Drop      => updateState {drop}
+    case Attack    => updateState {notifyAttack}
   }
-
+  private[this] def opponent: ActorRef =
+    if (self.path.name == "stageActor1") context.actorFor("/user/stageActor2")
+    else context.actorFor("/user/stageActor1")
   private[this] def updateState(trans: GameState => GameState) {
     val future = (stateActor ? GetState)(1 second).mapTo[GameState]
     val s1 = Await.result(future, 1 second)
     val s2 = trans(s1)
     stateActor ! SetState(s2)
+    (0 to s2.lastDeleted - 2) foreach { i =>
+      opponent ! Attack
+    }
   }
 }
 
@@ -55,21 +62,49 @@ class AgentActor(stageActor: ActorRef) extends Actor {
   def receive = {
     case BestMove(s: GameState) =>
       val message = agent.bestMove(s)
-      stageActor ! message
+      if (message == Drop) stageActor ! Tick
+      else stageActor ! message 
   }
 }
 
-class GameMasterActor(stateActor: ActorRef, agentActor: ActorRef) extends Actor {
-  def receive = {
-    case Tick => 
-      val s = getState
-      if (s.status != GameOver) {
-        agentActor ! BestMove(getState)
-      } 
-  }
+sealed trait GameMasterMessage
+case object Start
 
-  private[this] def getState: GameState = {
-    val future = (stateActor ? GetState)(1 second).mapTo[GameState]
+class GameMasterActor(stateActor1: ActorRef, stateActor2: ActorRef,
+    agentActor: ActorRef) extends Actor {
+  def receive = {
+    case Start => loop 
+  }
+  private[this] def loop {
+    val minActionTime = 337
+    var s = getStatesAndJudge._2
+    while (s.status == ActiveStatus) {
+      val t0 = System.currentTimeMillis
+      agentActor ! BestMove(getState2)
+      val t1 = System.currentTimeMillis
+      if (t1 - t0 < minActionTime) Thread.sleep(minActionTime - (t1 - t0))
+      s = getStatesAndJudge._2
+    }
+  }
+  private[this] def getStatesAndJudge: (GameState, GameState) = {
+    var s1 = getState1
+    var s2 = getState2
+    if (s1.status == GameOver && s2.status != Victory) {
+      stateActor2 ! SetState(s2.copy(status = Victory))
+      s2 = getState2
+    }
+    if (s1.status != Victory && s2.status == GameOver) {
+      stateActor1 ! SetState(s1.copy(status = Victory))
+      s1 = getState1
+    }
+    (s1, s2)
+  }
+  private[this] def getState1: GameState = {
+    val future = (stateActor1 ? GetState)(1 second).mapTo[GameState]
     Await.result(future, 1 second)
-  } 
+  }
+  private[this] def getState2: GameState = {
+    val future = (stateActor2 ? GetState)(1 second).mapTo[GameState]
+    Await.result(future, 1 second)
+  }
 }
