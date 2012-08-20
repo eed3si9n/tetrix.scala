@@ -31,14 +31,29 @@ object Builds extends Build {
       fork in run := true,
       libraryDependencies += "org.scala-lang" % "scala-swing" % "2.9.1"
     )) dependsOn(library)
-  lazy val android = Project("android", file("android"),
+  lazy val android = Project("tetrix_android", file("android"),
     settings = buildSettings ++ Seq(
-        platformName in Android := "android-10",
+        platformName in Android := "android-8",
         versionCode := 7
       ) ++
       AndroidProject.androidSettings ++
       AndroidManifestGenerator.settings ++
       TypedResources.settings ++ Seq(
+//         proguardOption := """-keepclassmembers class * {
+//   ** MODULE$;
+// }
 
+// -keep class scala.Option
+// -keep class scala.Function1
+// -keep class scala.PartialFunction
+// -keep class akka.**
+// -keep class com.eaio.**
+// -keepclassmembers class com.eaio.**
+// -keepclassmembers class akka.**
+// -keep class org.omg.**
+// -keep class scala.Tuple2
+// -dontskipnonpubliclibraryclassmembers
+// -dontskipnonpubliclibraryclasses
+// """
       )) dependsOn(library)
 }
