@@ -32,9 +32,9 @@ class Agent {
     }   
     math.sqrt((weightedHeights ++ crevasses ++ coverups) map { x => x * x } sum)
   }
-  def bestMove(s0: GameState, maxThinkTime: Long): StageMessage =
+  def bestMove(s0: GameState, maxThinkTime: Long = 0): StageMessage =
     bestMoves(s0, maxThinkTime).headOption getOrElse {Tick}
-  def bestMoves(s0: GameState, maxThinkTime: Long): Seq[StageMessage] = {
+  def bestMoves(s0: GameState, maxThinkTime: Long = 0): Seq[StageMessage] = {
     val t0 = System.currentTimeMillis
     var retval: Seq[StageMessage] = Tick :: Nil 
     var current: Double = minUtility
