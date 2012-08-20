@@ -9,7 +9,7 @@ object Builds extends Build {
     organization := "com.eed3si9n",
     homepage := Some(url("http://eed3si9n.com")),
     licenses := Seq("MIT License" -> url("http://opensource.org/licenses/mit-license.php/")),
-    scalaVersion := "2.9.2",
+    scalaVersion := "2.9.1",
     scalacOptions := Seq("-deprecation", "-unchecked"),
     resolvers ++= Seq(
       "sonatype-public" at "https://oss.sonatype.org/content/repositories/public",
@@ -24,12 +24,12 @@ object Builds extends Build {
     settings = buildSettings ++ Seq(
       libraryDependencies ++= Seq(
         "org.specs2" %% "specs2" % "1.12" % "test",
-        "com.typesafe.akka" % "akka-actor" % "2.0.2")
+        "se.scalablesolutions.akka" % "akka-actor" % "1.3.1")
     ))
   lazy val swing = Project("swing", file("swing"),
     settings = buildSettings ++ Seq(
       fork in run := true,
-      libraryDependencies += "org.scala-lang" % "scala-swing" % "2.9.2"
+      libraryDependencies += "org.scala-lang" % "scala-swing" % "2.9.1"
     )) dependsOn(library)
   lazy val android = Project("android", file("android"),
     settings = buildSettings ++ Seq(

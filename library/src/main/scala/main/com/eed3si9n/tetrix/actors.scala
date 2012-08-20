@@ -2,8 +2,8 @@ package com.eed3si9n.tetrix
 
 import akka.actor._
 import akka.util.duration._
-import akka.pattern.ask
-import akka.dispatch.{Future, Await}
+// import akka.pattern.ask
+import akka.dispatch.Future
 
 sealed trait StateMessage
 case object GetState extends StateMessage
@@ -14,9 +14,9 @@ class StateActor(s0: GameState) extends Actor {
   private[this] var state: GameState = s0
   
   def receive = {
-    case GetState    => sender ! state
+    case GetState    => self.reply(state) // sender ! state
     case SetState(s) => state = s
-    case GetView     => sender ! state.view
+    case GetView     => self.reply(state.view) // sender ! state.view
   }
 }
 
@@ -40,11 +40,13 @@ class StageActor(stateActor: ActorRef) extends Actor {
     case Attack    => updateState {notifyAttack}
   }
   private[this] def opponent: ActorRef =
-    if (self.path.name == "stageActor1") context.actorFor("/user/stageActor2")
-    else context.actorFor("/user/stageActor1")
+    if (self.id == "stageActor1") Actor.registry.actorsFor("stageActor2")(0)
+    else Actor.registry.actorsFor("stageActor1")(0)
+    // if (self.path.name == "stageActor1") context.actorFor("/user/stageActor2")
+    // else context.actorFor("/user/stageActor1")
   private[this] def updateState(trans: GameState => GameState) {
-    val future = (stateActor ? GetState)(1 second).mapTo[GameState]
-    val s1 = Await.result(future, 1 second)
+    val future = (stateActor ? GetState).mapTo[GameState]
+    val s1 = future.get
     val s2 = trans(s1)
     stateActor ! SetState(s2)
     (0 to s2.lastDeleted - 2) foreach { i =>
@@ -69,11 +71,14 @@ class AgentActor(stageActor: ActorRef) extends Actor {
 
 sealed trait GameMasterMessage
 case object Start
+case object GravityTimer
 
-class GameMasterActor(stateActor1: ActorRef, stateActor2: ActorRef,
+class GameMasterActor(stageActor1: ActorRef, stageActor2: ActorRef,
+    stateActor1: ActorRef, stateActor2: ActorRef,
     agentActor: ActorRef) extends Actor {
   def receive = {
     case Start => loop 
+    case GravityTimer => gravityLoop
   }
   private[this] def loop {
     val minActionTime = 337
@@ -100,11 +105,21 @@ class GameMasterActor(stateActor1: ActorRef, stateActor2: ActorRef,
     (s1, s2)
   }
   private[this] def getState1: GameState = {
-    val future = (stateActor1 ? GetState)(1 second).mapTo[GameState]
-    Await.result(future, 1 second)
+    val future = (stateActor1 ? GetState).mapTo[GameState]
+    future.get
   }
   private[this] def getState2: GameState = {
-    val future = (stateActor2 ? GetState)(1 second).mapTo[GameState]
-    Await.result(future, 1 second)
+    val future = (stateActor2 ? GetState).mapTo[GameState]
+    future.get
+  }
+  private[this] def gravityLoop {
+    val gravityTime = 701
+    while (true) {
+      val t0 = System.currentTimeMillis
+      stageActor1 ! Tick
+      stageActor2 ! Tick
+      val t1 = System.currentTimeMillis
+      if (t1 - t0 < gravityTime) Thread.sleep(gravityTime - (t1 - t0))
+    }
   }
 }
