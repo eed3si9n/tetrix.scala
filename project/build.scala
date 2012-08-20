@@ -2,6 +2,7 @@ import sbt._
 
 object Builds extends Build {
   import Keys._
+  import AndroidKeys._
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
     version := "0.1.0-SNAPSHOT",
@@ -30,4 +31,14 @@ object Builds extends Build {
       fork in run := true,
       libraryDependencies += "org.scala-lang" % "scala-swing" % "2.9.2"
     )) dependsOn(library)
+  lazy val android = Project("android", file("android"),
+    settings = buildSettings ++ Seq(
+        platformName in Android := "android-10",
+        versionCode := 7
+      ) ++
+      AndroidProject.androidSettings ++
+      AndroidManifestGenerator.settings ++
+      TypedResources.settings ++ Seq(
+
+      )) dependsOn(library)
 }
