@@ -1,22 +1,18 @@
 package com.eed3si9n.tetrix
 
 class AbstractUI {
-  private[this] var lastKey: String = ""
-
+  private[this] val stage = new Stage((10, 20))
   def left() {
-    lastKey = "left"
+    stage.moveLeft()
   }
   def right() {
-    lastKey = "right"
+    stage.moveRight()
   }
   def up() {
-    lastKey = "up"
   }
   def down() {
-    lastKey = "down"
   }
   def space() {
-    lastKey = "space"
   }
-  def last: String = lastKey
+  def view: GameView = stage.view
 }

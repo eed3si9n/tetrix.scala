@@ -8,6 +8,10 @@ lazy val buildSettings = Seq(
   resolvers += Resolver.sonatypeRepo("public")
 )
 
+lazy val specs2version = "2.2.2"
+lazy val libDeps = Def.setting {
+  "org.specs2" %% "specs2" % specs2version % "test"
+}
 lazy val swingDependencies = Def.setting {
   "org.scala-lang" % "scala-swing" % scalaVersion.value
 }
@@ -17,7 +21,10 @@ lazy val root = (project in file(".")).
   settings(name := "tetrix.scala")
 
 lazy val library = (project in file("library")).
-  settings(buildSettings: _*)
+  settings(buildSettings: _*).
+  settings(
+    libraryDependencies += libDeps.value
+  )
 
 lazy val swing = (project in file("swing")).
   settings(buildSettings: _*).

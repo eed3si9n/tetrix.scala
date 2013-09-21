@@ -105,8 +105,8 @@ I think this is good enough for the first day.
 To run this on your machine,
 
 ```
-$ git clone https://github.com/eed3si9n/tetrix.scala.git
-$ cd tetrix.scala
-$ git co day0v2 -b try/day0
-$ sbt swing/run
+\$ git clone https://github.com/eed3si9n/tetrix.scala.git
+\$ cd tetrix.scala
+\$ git co day0v2 -b try/day0
+\$ sbt swing/run
 ```
