@@ -29,7 +29,7 @@ object Main extends SimpleSwingApplication {
   }
   def onPaint(g: Graphics2D) {
     val view = ui.view
-    drawBoard(g, (0, 0), view.gridSize, view.blocks, view.current)
+    drawBoard(g, (0, 0), (10, 20), view.blocks, view.current)
     drawBoard(g, (12 * (blockSize + blockMargin), 0),
       view.miniGridSize, view.next, Nil)
     view.status match {
@@ -56,11 +56,13 @@ object Main extends SimpleSwingApplication {
     }
     def drawBlocks {
       g setColor bluishEvenLigher
-      blocks foreach { b => g fill buildRect(b.pos) }
+      blocks filter {_.pos._2 < gridSize._2} foreach { b =>
+        g fill buildRect(b.pos) }
     }
     def drawCurrent {
       g setColor bluishSilver
-      current foreach { b => g fill buildRect(b.pos) }
+      current filter {_.pos._2 < gridSize._2} foreach { b =>
+        g fill buildRect(b.pos) }
     }
     drawEmptyGrid
     drawBlocks

@@ -1,6 +1,24 @@
 package com.eed3si9n.tetrix
 
 import akka.actor._
+import scala.concurrent.duration._
+import akka.pattern.ask
+import scala.concurrent.{Future, Await}
+
+sealed trait StateMessage
+case object GetState extends StateMessage
+case class SetState(s: GameState) extends StateMessage
+case object GetView extends StateMessage
+
+class StateActor(s0: GameState) extends Actor {
+  private[this] var state: GameState = s0
+  
+  def receive = {
+    case GetState    => sender ! state
+    case SetState(s) => state = s
+    case GetView     => sender ! state.view
+  }
+}
 
 sealed trait StageMessage
 case object MoveLeft extends StageMessage
@@ -8,19 +26,22 @@ case object MoveRight extends StageMessage
 case object RotateCW extends StageMessage
 case object Tick extends StageMessage
 case object Drop extends StageMessage
-case object View extends StageMessage
 
-class StageActor(s0: GameState) extends Actor {
+class StageActor(stateActor: ActorRef) extends Actor {
   import Stage._
 
-  private[this] var state: GameState = s0
-
   def receive = {
-    case MoveLeft  => state = moveLeft(state)
-    case MoveRight => state = moveRight(state)
-    case RotateCW  => state = rotateCW(state)
-    case Tick      => state = tick(state)
-    case Drop      => state = drop(state)
-    case View      => sender ! state.view
+    case MoveLeft  => updateState {moveLeft}
+    case MoveRight => updateState {moveRight}
+    case RotateCW  => updateState {rotateCW}
+    case Tick      => updateState {tick}
+    case Drop      => updateState {drop}
+  }
+
+  private[this] def updateState(trans: GameState => GameState) {
+    val future = (stateActor ? GetState)(1 second).mapTo[GameState]
+    val s1 = Await.result(future, 1 second)
+    val s2 = trans(s1)
+    stateActor ! SetState(s2)
   }
 }
