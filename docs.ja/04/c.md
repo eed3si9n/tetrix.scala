@@ -9,7 +9,7 @@ out: game-status.html
 ```scala
                                                                               s2"""
   Spawning a new piece should
-    end the game it hits something.                                           $spawn1
+    end the game it hits something.                                           \$spawn1
                                                                               """
 ...
 

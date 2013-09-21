@@ -9,7 +9,7 @@ Let's implement a small feature too. During the spawning process collision again
 ```scala
                                                                               s2"""
   Spawning a new piece should
-    end the game it hits something.                                           $spawn1
+    end the game it hits something.                                           \$spawn1
                                                                               """
 ...
 

@@ -24,7 +24,7 @@ case class GameState(blocks: Seq[Block], gridSize: (Int, Int),
 ```scala
                                                                               s2"""
   The current piece should
-    be initialized to the first element in the state.                         $init1
+    be initialized to the first element in the state.                         \$init1
                                                                               """
 ...
 
