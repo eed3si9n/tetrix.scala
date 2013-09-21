@@ -40,19 +40,18 @@ object Stage {
       nextPiece = Piece((2, 1), s.kinds.head),
       kinds = s.kinds.tail)
     validate(s1) map { case x =>
-      x.copy(blocks = load(x.currentPiece, x.blocks))
+      x.load(x.currentPiece)
     } getOrElse {
-      s1.copy(blocks = load(s1.currentPiece, s1.blocks), status = GameOver)
+      s1.load(s1.currentPiece).copy(status = GameOver)
     }
   }
   private[this] def transit(trans: Piece => Piece,
       onFail: GameState => GameState = identity): GameState => GameState =
     (s: GameState) => s.status match {
       case ActiveStatus =>
-        validate(s.copy(
-            blocks = unload(s.currentPiece, s.blocks),
+        validate(s.unload(s.currentPiece).copy(
             currentPiece = trans(s.currentPiece))) map { case x =>
-          x.copy(blocks = load(x.currentPiece, x.blocks))
+          x.load(x.currentPiece)
         } getOrElse {onFail(s)}      
       case _ => s
     }
@@ -65,10 +64,4 @@ object Stage {
       (s.blocks map {_.pos} intersect currentPoss).isEmpty) Some(s)
     else None
   }
-  private[this] def unload(p: Piece, bs: Seq[Block]): Seq[Block] = {
-    val currentPoss = p.current map {_.pos}
-    bs filterNot { currentPoss contains _.pos  }
-  }
-  private[this] def load(p: Piece, bs: Seq[Block]): Seq[Block] =
-    bs ++ p.current
 }
