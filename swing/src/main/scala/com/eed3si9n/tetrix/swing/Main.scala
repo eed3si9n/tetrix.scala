@@ -31,7 +31,14 @@ object Main extends SimpleSwingApplication {
     val view = ui.view
     drawBoard(g, (0, 0), view.gridSize, view.blocks, view.current)
     drawBoard(g, (12 * (blockSize + blockMargin), 0),
-      view.miniGridSize, view.next, Nil) 
+      view.miniGridSize, view.next, Nil)
+    view.status match {
+      case GameOver =>
+        g setColor bluishSilver
+        g drawString ("game over",
+          12 * (blockSize + blockMargin), 7 * (blockSize + blockMargin))
+      case _ => // do nothing
+    }
   }
   def drawBoard(g: Graphics2D, offset: (Int, Int), gridSize: (Int, Int), 
       blocks: Seq[Block], current: Seq[Block]) {

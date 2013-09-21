@@ -5,13 +5,18 @@ lazy val buildSettings = Seq(
   licenses := Seq("MIT License" -> url("http://opensource.org/licenses/mit-license.php/")),
   scalaVersion := "2.10.2",
   scalacOptions := Seq("-deprecation", "-unchecked"),
-  resolvers += Resolver.sonatypeRepo("public")
+  resolvers ++= Seq(
+    Resolver.sonatypeRepo("public"),
+    Resolver.typesafeRepo("releases")
+  )
 )
 
 lazy val specs2version = "2.2.2"
-lazy val libDeps = Def.setting {
-  "org.specs2" %% "specs2" % specs2version % "test"
-}
+lazy val akkaVersion = "2.2.1"
+lazy val libDeps = Def.setting { Seq(
+  "org.specs2" %% "specs2" % specs2version % "test",
+  "com.typesafe.akka" %% "akka-actor" % akkaVersion
+)}
 lazy val swingDependencies = Def.setting {
   "org.scala-lang" % "scala-swing" % scalaVersion.value
 }
@@ -23,7 +28,7 @@ lazy val root = (project in file(".")).
 lazy val library = (project in file("library")).
   settings(buildSettings: _*).
   settings(
-    libraryDependencies += libDeps.value
+    libraryDependencies ++= libDeps.value
   )
 
 lazy val swing = (project in file("swing")).
