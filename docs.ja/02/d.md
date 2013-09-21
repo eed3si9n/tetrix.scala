@@ -106,7 +106,7 @@ out: tick.html
 
 ![day2](http://eed3si9n.com/images/tetrix-in-scala-day2.png)
 
-### 最後に
+### 一番下の列
 
 明らかな問題は一番下の列が消えていないことだ。以下のスペックでテストできると思う:
 
