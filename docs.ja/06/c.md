@@ -60,7 +60,7 @@ s11 s12 s13 s14 s15  s21 s22 s23 s24 s25  s31 s32 s33 s34 s35
 [error]  'MoveLeft' is not equal to 'Drop' (AgentSpec.scala:32)
 ```
 
-続きはまた[明日](http://eed3si9n.com/ja/tetrix-in-scala-day7)。
+続きはまた明日。
 
 ```
 \$ git fetch origin
