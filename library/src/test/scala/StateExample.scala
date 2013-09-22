@@ -10,5 +10,9 @@ trait StateExample {
       (0, 0), (1, 0), (2, 0), (3, 0), (7, 0), (8, 0), (9, 0))
     map { Block(_, TKind) }, (10, 20), ttt)
   def s4 = newState(Nil, (10, 20), OKind :: OKind :: Nil)
+  def s5 = newState(Seq(
+      (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0),
+      (7, 0), (9, 0))
+    map { Block(_, TKind) }, (10, 20), ttt)
   def gameOverState = Function.chain(Nil padTo (10, drop))(s1)
 }

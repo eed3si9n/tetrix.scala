@@ -7,11 +7,17 @@ class AgentSpec extends Specification with StateExample { def is =            s2
     evaluate initial state as 0.0,                                            $utility1
     evaluate GameOver as -1000.0,                                             $utility2
     evaluate an active state by lineCount                                     $utility3
-    penalize having gaps between the columns                                  $utility4
+
+  Penalty function should
+    penalize having blocks stacked up high                                    $penalty1
+
+  ActionSeqs function should
+    list out potential action sequences                                       $actionSeqs1
 
   Solver should
     pick MoveLeft for s1                                                      $solver1
     pick Drop for s3                                                          $solver2
+    pick RotateCW for s5                                                      $solver3
                                                                               """
   
   import com.eed3si9n.tetrix._
@@ -25,16 +31,27 @@ class AgentSpec extends Specification with StateExample { def is =            s2
     agent.utility(gameOverState) must_== -1000.0
   def utility3 = {
     val s = Function.chain(Nil padTo (19, tick))(s3)
-    agent.utility(s) must_== 1.0
+    agent.reward(s) must_== 1.0
   }
-  def utility4 = {
+  def penalty1 = {
     val s = newState(Seq(
       (0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6))
       map { Block(_, TKind) }, (10, 20), TKind :: TKind :: Nil)
-    agent.utility(s) must_== -36.0
+    agent.penalty(s) must_== 7.0 
+  } and {
+    val s = newState(Seq((1, 0))
+    map { Block(_, ZKind) }, (10, 20), TKind :: TKind :: Nil)
+    agent.penalty(s) must_== 1.0
+  }
+  def actionSeqs1 = {
+    val s = newState(Nil, (10, 20), TKind :: TKind :: Nil)
+    val seqs = agent.actionSeqs(s)
+    seqs.size must_== 32
   }
   def solver1 =
     agent.bestMove(s1) must_== MoveLeft
   def solver2 =
     agent.bestMove(s3) must beOneOf(Drop, Tick)
+  def solver3 =
+    agent.bestMove(s5) must_== RotateCW
 }

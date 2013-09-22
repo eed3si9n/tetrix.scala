@@ -5,6 +5,8 @@ lazy val buildSettings = Seq(
   licenses := Seq("MIT License" -> url("http://opensource.org/licenses/mit-license.php/")),
   scalaVersion := "2.10.2",
   scalacOptions := Seq("-deprecation", "-unchecked"),
+  initialCommands in console := """import com.eed3si9n.tetrix._
+                                  |import Stage._""".stripMargin,
   resolvers ++= Seq(
     Resolver.sonatypeRepo("public"),
     Resolver.typesafeRepo("releases")

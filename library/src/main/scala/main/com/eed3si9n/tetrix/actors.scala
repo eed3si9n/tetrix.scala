@@ -55,7 +55,7 @@ class AgentActor(stageActor: ActorRef) extends Actor {
   def receive = {
     case BestMove(s: GameState) =>
       val message = agent.bestMove(s)
-      stageActor ! message
+      if (message != Drop) stageActor ! message
   }
 }
 
