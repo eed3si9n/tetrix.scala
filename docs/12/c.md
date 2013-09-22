@@ -6,6 +6,28 @@ out: hello-world.html
 
 An Android apps consists mainly of activities, views, and threads. For tetrix, we just need to get a handle to the `Canvas` object to draw things, so activities and views become fairly simple. I will stuff most of the logic in a thread, which I am not sure is the right approach.
 
+First, create `android/src/main/AndroidManifest.xml`. This forces landscape orientation:
+
+```
+<manifest package="com.eed3si9n.tetrix.droid" xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-sdk android:minSdkVersion="16"></uses-sdk>
+    <application android:label="@string/app_name">
+      <activity 
+          android:label="@string/app_name"
+          android:name=".MainActivity"
+          android:launchMode="singleTop"
+          android:configChanges="orientation|keyboardHidden"
+          android:screenOrientation="landscape">
+        <intent-filter>
+          <action android:name="android.intent.action.MAIN"></action>
+          <category android:name="android.intent.category.LAUNCHER"></category>
+        </intent-filter>
+      </activity>
+    </application>
+</manifest>
+
+```
+
 Here's the activity class:
 
 ```scala
@@ -22,7 +44,7 @@ class MainActivity extends Activity {
 }
 ```
 
-The layout file is `droid/src/main/res/layout/main.xml`:
+The layout file is `android/src/main/res/layout/main.xml`:
 
 ```
 <?xml version="1.0" encoding="utf-8"?>

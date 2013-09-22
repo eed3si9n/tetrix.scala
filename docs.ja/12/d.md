@@ -1,41 +1,13 @@
-
-### akka 1.3.1
-
-最新の安定版である Scala 2.9.2 と書き始めた時点で最新だった Akka 2.0.2 を選択した。問題は Akka 2.0.2 は簡単には Android で動かなそうなことだ。一方古いバージョンの Akka には
-[gseitz/DiningAkkaDroids][2] という例となるアプリがあって、これは動作するらしい。特に手間でも無かったが、とにかく Akka 1.3.1 にダウングレードする必要があった。
-
-以下に変更点をいくつか見ていく。`ActorSystem` の代わりに `Actor` というシングルトンを使ってアクターを作る。名前は `self.id` を用いて設定する:
-
-```scala
-  private[this] val stageActor1 = actorOf(new StageActor(
-    stateActor1) {
-    self.id = "stageActor1"
-  }).start()
-```
-
-`Future` からの値の取得はこっちの方が簡単だ。`get` を呼ぶだけでいい:
-
-```scala
-  def views: (GameView, GameView) =
-    ((stateActor1 ? GetView).mapTo[GameView].get,
-    (stateActor2 ? GetView).mapTo[GameView].get)
-```
-
-パスのかわりに `id` を使ってアクターをルックアップする:
-
-```scala
-  private[this] def opponent: ActorRef =
-    if (self.id == "stageActor1") Actor.registry.actorsFor("stageActor2")(0)
-    else Actor.registry.actorsFor("stageActor1")(0)
-```
-
-スケジュールの代わりに自分で `GameMasterActor` に実装したが、これも特になんのことはない。
+---
+out: ui-for-android.html
+---
 
 ### Android の UI
 
 Android にはウィジェットやグラッフィクなどに独自のライブラリがある。これらはドキュメントが整っており、他の UI プラットフォームと特に変わらない。`drawBoard` などを swing からいくつかの変更を加えるだけで移植することができた。
 
 ```scala
+  var blockSize: Int = 18
   var ui: Option[AbstractUI] = None
 
   override def run {
@@ -54,6 +26,8 @@ Android にはウィジェットやグラッフィクなどに独自のライブ
   }
   def drawViews(view1: GameView, view2: GameView) =
     withCanvas { g =>
+      blockSize = canvasHeight / 22
+      bluishSilver.setTextSize(blockSize)
       g drawRect (0, 0, canvasWidth, canvasHeight, bluishGray)
       val unit = blockSize + blockMargin
       val xOffset = canvasWidth / 2
@@ -84,18 +58,29 @@ Android にはウィジェットやグラッフィクなどに独自のライブ
   }
 ```
 
-エミュレータで読み込んでみる:
+エミュレータに読み込むためには、device を選択して `android:run` を実行する:
 
 ```
-> android:start-emulator
+tetrix_droid> devices
+[info] Connected devices:
+[info]   emulator-5554          test_adv16
+tetrix_droid> device emulator-5554
+[info] default device: emulator-5554
+tetrix_droid> android:run
+[info] Generating R.java
+[info] [debug] cache hit, skipping proguard!
+[info] classes.dex is up-to-date
+[info] Debug package does not need signing: tetrix_droid-debug-unaligned.apk
+[info] zipaligned: tetrix_droid-debug.apk
+[info] Installing...
 ```
 
-ちょっと不安定だけど、エミュレータに表示された。
+エミュレータに表示された。
 
-<img src="/images/tetrix-in-scala-day12.png"/>
+![day12c](http://eed3si9n.com/images/tetrix-in-scala-day12c.png)
 
-マルチコアの Android で実行できるであろうと願っていたが、確認できた! 借り物の Galaxy S III でスムーズに実行された。
+実際の動作を確認するために実機に載せてみよう。これは僕の htc one で実行された tetrix だ:
 
-<img src="/images/tetrix-in-scala-day12b.png"/>
+![day12d](http://eed3si9n.com/images/tetrix-in-scala-day12d.jpg)
 
 さて、Scala で書く tetrix もこれで最終回だ。コメントやリツイートありがとう。意見や至らない所があれば是非聞かせてほしい。それから、腕に自信がある人は人間を倒せるぐらい頭の良いエージェントアクターを pull request で送ってほしい!

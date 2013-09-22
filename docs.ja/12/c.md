@@ -6,6 +6,27 @@ out: hello-world.html
 
 Android のアプリは主にアクティビティ、ビュー、スレッドから構成される。tetrix では描画のために `Canvas` オブジェクトさえ手に入ればいいので、アクティビティもビューもかなりシンプルなものだ。ほとんどのロジックはスレッドに詰め込んでしまったが、これが正しい方法なのかは僕もよく分かっていない。
 
+まずは `android/src/main/AndroidManifest.xml` を作る。これは画面を横持ちに強制する:
+
+```
+<manifest package="com.eed3si9n.tetrix.droid" xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-sdk android:minSdkVersion="16"></uses-sdk>
+    <application android:label="@string/app_name">
+      <activity 
+          android:label="@string/app_name"
+          android:name=".MainActivity"
+          android:launchMode="singleTop"
+          android:configChanges="orientation|keyboardHidden"
+          android:screenOrientation="landscape">
+        <intent-filter>
+          <action android:name="android.intent.action.MAIN"></action>
+          <category android:name="android.intent.category.LAUNCHER"></category>
+        </intent-filter>
+      </activity>
+    </application>
+</manifest>
+```
+
 これがアクティビティのクラス:
 
 ```scala

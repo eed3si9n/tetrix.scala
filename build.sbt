@@ -49,6 +49,7 @@ lazy val droid = (project in file("android")).
   settings(buildSettings: _*).
   settings(androidBuild: _*).
   settings(
+    name := "tetrix_droid",
     platformTarget in Android := "android-16",
     proguardOptions in Android ++= Seq("-dontwarn sun.misc.Unsafe",
       """-keep class akka.** {

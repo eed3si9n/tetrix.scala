@@ -1,42 +1,13 @@
-
-
-
-### akka 1.3.1
-
-I chose the latest stable Scala 2.9.2 and Akka 2.0.2, which was the latest when I started. The problem is that Akka 2.0.2 doesn't seem to work on Android easily. On the other hand, for older version of Akka there's an example application [gseitz/DiningAkkaDroids][2] that's suppose to work. It wasn't much work, but I had to basically downgrade Akka to 1.3.1.
-
-Here are some of the changes. Instead of an `ActorSystem`, `Actor` singleton object is used to create an actor. Names are set using `self.id`:
-
-```scala
-  private[this] val stageActor1 = actorOf(new StageActor(
-    stateActor1) {
-    self.id = "stageActor1"
-  }).start()
-```
-
-Grabbing the values from `Future` is much simpler. You just call `get`:
-
-```scala
-  def views: (GameView, GameView) =
-    ((stateActor1 ? GetView).mapTo[GameView].get,
-    (stateActor2 ? GetView).mapTo[GameView].get)
-```
-
-Instead of the path, you can use `id` to lookup actors:
-
-```scala
-  private[this] def opponent: ActorRef =
-    if (self.id == "stageActor1") Actor.registry.actorsFor("stageActor2")(0)
-    else Actor.registry.actorsFor("stageActor1")(0)
-```
-
-I had to implement scheduling myself using `GameMasterActor`, but that wasn't a big deal either.
+---
+out: ui-for-android.html
+---
 
 ### UI for Android
 
 Android has its own library for widgets and graphics. They are all well-documented, and not that much different from any other UI platforms. I was able to port `drawBoard` etc from swing with only a few modification.
 
 ```scala
+  var blockSize: Int = 18
   var ui: Option[AbstractUI] = None
 
   override def run {
@@ -55,6 +26,8 @@ Android has its own library for widgets and graphics. They are all well-document
   }
   def drawViews(view1: GameView, view2: GameView) =
     withCanvas { g =>
+      blockSize = canvasHeight / 22
+      bluishSilver.setTextSize(blockSize)
       g drawRect (0, 0, canvasWidth, canvasHeight, bluishGray)
       val unit = blockSize + blockMargin
       val xOffset = canvasWidth / 2
@@ -85,18 +58,29 @@ Android has its own library for widgets and graphics. They are all well-document
   }
 ```
 
-Let's load it on the emulator:
+To load it on the emulator, select the device and `android:run`:
 
 ```
-> android:start-emulator
+tetrix_droid> devices
+[info] Connected devices:
+[info]   emulator-5554          test_adv16
+tetrix_droid> device emulator-5554
+[info] default device: emulator-5554
+tetrix_droid> android:run
+[info] Generating R.java
+[info] [debug] cache hit, skipping proguard!
+[info] classes.dex is up-to-date
+[info] Debug package does not need signing: tetrix_droid-debug-unaligned.apk
+[info] zipaligned: tetrix_droid-debug.apk
+[info] Installing...
 ```
 
-It was a bit shaky but it did showed up on the emulator.
+It did showed up on the emulator.
 
-<img src="/images/tetrix-in-scala-day12.png"/>
+![day12c](http://eed3si9n.com/images/tetrix-in-scala-day12c.png)
 
-I was hoping it runs on multicore androids, and it did! It ran smoothly on a borrowed Galaxy S III.
+To really get the feeling on how it works, let's load on a phone. Here's tetrix running on my htc one:
 
-<img src="/images/tetrix-in-scala-day12b.png"/>
+![day12d](http://eed3si9n.com/images/tetrix-in-scala-day12d.jpg)
 
 Anyway, this is going to be the end of our tetrix in Scala series. Thanks for the comments and retweets. I'd like to hear what you think. Also, if you are up for the challenge, send me a pull request of a smarter agent-actor that can beat human!
