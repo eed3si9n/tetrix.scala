@@ -16,6 +16,7 @@ object Main extends SimpleSwingApplication {
   val bluishSilver = new AWTColor(210, 255, 255)
   val blockSize = 16
   val blockMargin = 1
+  val mainPanelSize = new Dimension(700, 400)
 
   val ui = new AbstractUI
 
@@ -28,18 +29,27 @@ object Main extends SimpleSwingApplication {
     case _ =>
   }
   def onPaint(g: Graphics2D) {
-    val view = ui.view
-    drawBoard(g, (0, 0), (10, 20), view.blocks, view.current)
-    drawBoard(g, (12 * (blockSize + blockMargin), 0),
-      view.miniGridSize, view.next, Nil)
-    g setColor bluishSilver
+    val (view1, view2) = ui.views
     val unit = blockSize + blockMargin
+    val xOffset = mainPanelSize.width / 2
+    drawBoard(g, (0, 0), (10, 20), view1.blocks, view1.current)
+    drawBoard(g, (12 * unit, 0), view1.miniGridSize, view1.next, Nil)
+    drawStatus(g, (12 * unit, 0), view1)
+    drawBoard(g, (xOffset, 0), (10, 20), view2.blocks, view2.current)
+    drawBoard(g, (12 * unit + xOffset, 0), view2.miniGridSize, view2.next, Nil)
+    drawStatus(g, (12 * unit + xOffset, 0), view2)
+  }
+  def drawStatus(g: Graphics2D, offset: (Int, Int), view: GameView) {
+    val unit = blockSize + blockMargin
+    g setColor bluishSilver
     view.status match {
       case GameOver =>
-        g drawString ("game over", 12 * unit, 8 * unit)
+        g drawString ("game over", offset._1, offset._2 + 8 * unit)
+      case Victory =>
+        g drawString ("you win!", offset._1, offset._2 + 8 * unit)
       case _ => // do nothing
     }
-    g drawString ("lines: " + view.lineCount.toString, 12 * unit, 7 * unit)
+    g drawString ("lines: " + view.lineCount.toString, offset._1, offset._2 + 7 * unit)
   }
   def drawBoard(g: Graphics2D, offset: (Int, Int), gridSize: (Int, Int), 
       blocks: Seq[Block], current: Seq[Block]) {
@@ -75,7 +85,7 @@ object Main extends SimpleSwingApplication {
     contents = mainPanel
   }
   def mainPanel = new Panel {
-    preferredSize = new Dimension(700, 400)
+    preferredSize = mainPanelSize
     focusable = true
     listenTo(keys)
     reactions += {

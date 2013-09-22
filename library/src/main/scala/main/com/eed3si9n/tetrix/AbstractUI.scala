@@ -13,24 +13,31 @@ class AbstractUI {
   private[this] val initialState = Stage.newState(Nil,
     (10, 23), Stage.randomStream(new scala.util.Random))
   private[this] val system = ActorSystem("TetrixSystem")
-  private[this] val stateActor = system.actorOf(Props(new StateActor(
-    initialState)), name = "stateActor")
-  private[this] val playerActor = system.actorOf(Props(new StageActor(
-    stateActor)), name = "playerActor")
+  private[this] val stateActor1 = system.actorOf(Props(new StateActor(
+    initialState)), name = "stateActor1")
+  private[this] val stageActor1 = system.actorOf(Props(new StageActor(
+    stateActor1)), name = "stageActor1")
+  private[this] val stateActor2 = system.actorOf(Props(new StateActor(
+    initialState)), name = "stateActor2")
+  private[this] val stageActor2 = system.actorOf(Props(new StageActor(
+    stateActor2)), name = "stageActor2")
   private[this] val agentActor = system.actorOf(Props(new AgentActor(
-    playerActor)), name = "agentActor")
+    stageActor2)), name = "agentActor")
   private[this] val masterActor = system.actorOf(Props(new GameMasterActor(
-    stateActor, agentActor)), name = "masterActor")
-  private[this] val tickTimer = system.scheduler.schedule(
-    0 millisecond, 700 millisecond, playerActor, Tick)
-  private[this] val masterTickTimer = system.scheduler.schedule(
-    0 millisecond, 681 millisecond, masterActor, Tick)
+    stateActor1, stateActor2, agentActor)), name = "masterActor")
+  private[this] val tickTimer1 = system.scheduler.schedule(
+    0 millisecond, 701 millisecond, stageActor1, Tick)
+  private[this] val tickTimer2 = system.scheduler.schedule(
+    0 millisecond, 701 millisecond, stageActor2, Tick)
+  
+  masterActor ! Start
 
-  def left()  { playerActor ! MoveLeft }
-  def right() { playerActor ! MoveRight }
-  def up()    { playerActor ! RotateCW }
-  def down()  { playerActor ! Tick }
-  def space() { playerActor ! Drop }
-  def view: GameView =
-    Await.result((stateActor ? GetView).mapTo[GameView], timeout.duration)
+  def left()  { stageActor1 ! MoveLeft }
+  def right() { stageActor1 ! MoveRight }
+  def up()    { stageActor1 ! RotateCW }
+  def down()  { stageActor1 ! Tick }
+  def space() { stageActor1 ! Drop }
+  def views: (GameView, GameView) =
+    (Await.result((stateActor1 ? GetView).mapTo[GameView], timeout.duration),
+    Await.result((stateActor2 ? GetView).mapTo[GameView], timeout.duration))
 }

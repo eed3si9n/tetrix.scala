@@ -23,6 +23,7 @@ case object PieceKind {
 sealed trait GameStatus
 case object ActiveStatus extends GameStatus
 case object GameOver extends GameStatus
+case object Victory extends GameStatus
 
 case class Block(pos: (Int, Int), kind: PieceKind)
 
@@ -32,7 +33,9 @@ case class GameView(blocks: Seq[Block], gridSize: (Int, Int),
 
 case class GameState(blocks: Seq[Block], gridSize: (Int, Int),
     currentPiece: Piece, nextPiece: Piece, kinds: Seq[PieceKind],
-    status: GameStatus, lineCount: Int) {
+    status: GameStatus = ActiveStatus,
+    lineCount: Int = 0, lastDeleted: Int = 0,
+    pendingAttacks: Int = 0) {
   def view: GameView = GameView(blocks, gridSize,
     currentPiece.current, (4, 4), nextPiece.current,
     status, lineCount)

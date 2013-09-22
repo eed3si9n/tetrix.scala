@@ -7,7 +7,7 @@ class Agent {
   private[this] val minUtility = -1000.0 
   def utility(state: GameState): Double =
     if (state.status == GameOver) minUtility
-    else reward(state) - penalty(state) / 10.0
+    else reward(state) - penalty(state) / 1000.0
   def reward(s: GameState): Double = s.lineCount.toDouble
   def penalty(s: GameState): Double = {
     val groupedByX = s.unload(s.currentPiece).blocks map {_.pos} groupBy {_._1}
@@ -27,9 +27,11 @@ class Agent {
     }
     math.sqrt((weightedHeights ++ crevasses) map { x => x * x } sum)
   }
-  def bestMove(s0: GameState): StageMessage = bestMoves(s0).headOption getOrElse {Drop}
+  def bestMove(s0: GameState): StageMessage = bestMoves(s0).headOption getOrElse {Tick}
   def bestMoves(s0: GameState): Seq[StageMessage] = {
-    var retval: Seq[StageMessage] = Drop :: Nil 
+    val maxThinkTime = 1000
+    val t0 = System.currentTimeMillis
+    var retval: Seq[StageMessage] = Tick :: Nil 
     var current: Double = minUtility
     stopWatch("bestMove") {
       val nodes = actionSeqs(s0) map { seq =>
@@ -43,15 +45,17 @@ class Agent {
         SearchNode(s1, ms, u)
       }
       nodes foreach { node =>
-        actionSeqs(node.state) foreach { seq =>
-          val ms = seq ++ Seq(Drop)
-          val s2 = Function.chain(ms map {toTrans})(node.state)
-          val u = utility(s2)
-          if (u > current) {
-            current = u
-            retval = node.actions
-          } // if
-        }
+        if (System.currentTimeMillis - t0 < maxThinkTime)
+          actionSeqs(node.state) foreach { seq =>
+            val ms = seq ++ Seq(Drop)
+            val s2 = Function.chain(ms map {toTrans})(node.state)
+            val u = utility(s2)
+            if (u > current) {
+              current = u
+              retval = node.actions
+            } // if
+          }
+        else ()
       }
     } // stopWatch
     // println("selected " + retval + " " + current.toString)
