@@ -16,9 +16,10 @@ object Scripter {
     val scriptDir = new java.io.File("script")
     val results = for (i <- 0 to 4)
       yield test(new java.io.File(scriptDir, i.toString + ".txt"))
-    println("lines: " + results.toString)
+    println("lines  : " + results.map(_._1).toString)
+    println("attacks: " + results.map(_._2).toString) 
   }
-  def test(file: java.io.File): Int = {
+  def test(file: java.io.File): (Int, Int) = {
     val pieces = io.Source.fromFile(file).seq map { c =>
       PieceKind(c.toString.toInt)
     }
@@ -26,12 +27,14 @@ object Scripter {
     var s: GameState = s0
     val agent = new Agent
     while (s.status == ActiveStatus) {
-      val ms = agent.bestMoves(s)
+      val ms = agent.bestMoves(s, 0)
       s = Function.chain(ms map {toTrans})(s)
     }
     printState(s)
-    println(file.getName + ": " + s.lineCount.toString + " lines")
-    s.lineCount
+    println(file.getName + ": " +
+      s.lineCount.toString + " lines; " +
+      s.attackCount.toString + " attacks")
+    (s.lineCount, s.attackCount)
   }
   def printState(s: GameState) {
     val poss = s.blocks map {_.pos}

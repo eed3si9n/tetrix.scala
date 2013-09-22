@@ -49,7 +49,7 @@ class AgentSpec extends Specification with StateExample { def is =            s2
     val s = newState(Seq(
       (0, 0), (2, 0), (0, 1), (1, 1), (2, 1), (3, 1))
       map { Block(_, TKind) }, (10, 20), TKind :: TKind :: Nil)
-    agent.penalty(s) must beCloseTo(44.0, 0.01) 
+    agent.penalty(s) must beCloseTo(44.02, 0.01) 
   }
   def penalty3 = {
     val s = newState(Seq(
@@ -62,10 +62,11 @@ class AgentSpec extends Specification with StateExample { def is =            s2
     val seqs = agent.actionSeqs(s)
     seqs.size must_== 32
   }
+  val thinkTime = 1000
   def solver1 =
-    agent.bestMove(s1) must_== MoveLeft
+    agent.bestMove(s1, thinkTime) must_== MoveLeft
   def solver2 =
-    agent.bestMove(s3) must beOneOf(Drop, Tick)
+    agent.bestMove(s3, thinkTime) must beOneOf(Drop, Tick)
   def solver3 =
-    agent.bestMove(s5) must_== RotateCW
+    agent.bestMove(s5, thinkTime) must_== RotateCW
 }

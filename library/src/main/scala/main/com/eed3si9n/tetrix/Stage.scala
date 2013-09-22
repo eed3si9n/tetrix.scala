@@ -32,10 +32,12 @@ object Stage {
         tryRow(i - 1, s.copy(blocks = (s.blocks filter {_.pos._2 < i}) ++
           (s.blocks filter {_.pos._2 > i} map { b =>
             b.copy(pos = (b.pos._1, b.pos._2 - 1)) }),
-          lineCount = s.lineCount + 1,
           lastDeleted = s.lastDeleted + 1))  
       else tryRow(i - 1, s)
-    tryRow(s0.gridSize._2 - 1, s0)
+    val s1 = tryRow(s0.gridSize._2 - 1, s0)
+    if (s1.lastDeleted == 0) s1
+    else s1.copy(lineCounts = s1.lineCounts updated
+      (s1.lastDeleted, s1.lineCounts(s1.lastDeleted) + 1))
   }
   val attackRandom = new util.Random(0L)
   private[this] lazy val attack: GameState => GameState =

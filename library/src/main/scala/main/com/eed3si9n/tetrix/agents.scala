@@ -25,11 +25,16 @@ class Agent {
       if (down < -2 && up > 2) Some(math.min(crevassesWeight * hWithDefault(x), crevassesWeight * hWithDefault(x + 2)))
       else None
     }
-    math.sqrt((weightedHeights ++ crevasses) map { x => x * x } sum)
+    val coverupWeight = 1
+    val coverups = groupedByX flatMap { case (k, vs) =>
+      if (vs.size < heights(k)) Some(coverupWeight * 1)
+      else None
+    }   
+    math.sqrt((weightedHeights ++ crevasses ++ coverups) map { x => x * x } sum)
   }
-  def bestMove(s0: GameState): StageMessage = bestMoves(s0).headOption getOrElse {Tick}
-  def bestMoves(s0: GameState): Seq[StageMessage] = {
-    val maxThinkTime = 1000
+  def bestMove(s0: GameState, maxThinkTime: Long): StageMessage =
+    bestMoves(s0, maxThinkTime).headOption getOrElse {Tick}
+  def bestMoves(s0: GameState, maxThinkTime: Long): Seq[StageMessage] = {
     val t0 = System.currentTimeMillis
     var retval: Seq[StageMessage] = Tick :: Nil 
     var current: Double = minUtility
@@ -45,7 +50,8 @@ class Agent {
         SearchNode(s1, ms, u)
       }
       nodes foreach { node =>
-        if (System.currentTimeMillis - t0 < maxThinkTime)
+        if (maxThinkTime == 0 ||
+          System.currentTimeMillis - t0 < maxThinkTime)
           actionSeqs(node.state) foreach { seq =>
             val ms = seq ++ Seq(Drop)
             val s2 = Function.chain(ms map {toTrans})(node.state)
