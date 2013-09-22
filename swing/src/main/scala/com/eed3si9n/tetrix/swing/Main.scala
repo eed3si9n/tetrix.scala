@@ -32,13 +32,14 @@ object Main extends SimpleSwingApplication {
     drawBoard(g, (0, 0), (10, 20), view.blocks, view.current)
     drawBoard(g, (12 * (blockSize + blockMargin), 0),
       view.miniGridSize, view.next, Nil)
+    g setColor bluishSilver
+    val unit = blockSize + blockMargin
     view.status match {
       case GameOver =>
-        g setColor bluishSilver
-        g drawString ("game over",
-          12 * (blockSize + blockMargin), 7 * (blockSize + blockMargin))
+        g drawString ("game over", 12 * unit, 8 * unit)
       case _ => // do nothing
     }
+    g drawString ("lines: " + view.lineCount.toString, 12 * unit, 7 * unit)
   }
   def drawBoard(g: Graphics2D, offset: (Int, Int), gridSize: (Int, Int), 
       blocks: Seq[Block], current: Seq[Block]) {

@@ -24,7 +24,7 @@ class AbstractUI {
   private[this] val tickTimer = system.scheduler.schedule(
     0 millisecond, 700 millisecond, playerActor, Tick)
   private[this] val masterTickTimer = system.scheduler.schedule(
-    0 millisecond, 700 millisecond, masterActor, Tick)
+    0 millisecond, 681 millisecond, masterActor, Tick)
   private[this] def randomStream(random: scala.util.Random): Stream[PieceKind] =
     PieceKind(random.nextInt % 7) #:: randomStream(random)
 
