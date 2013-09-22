@@ -2,7 +2,7 @@
 out: unfair-advantage.html
 ---
 
-### unfair advantage
+## unfair advantage
 
 Thus far, the agent has been tuned to delete as many lines as it can. But yesterday we introduced attacking, which only kicks in after deleting two or more rows. This gives human side, who are aware of this change, an unfair advantage. Let's see what we can do.
 

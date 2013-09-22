@@ -1,3 +1,5 @@
+import android.Keys._
+
 lazy val buildSettings = Seq(
   version := "0.2.0-SNAPSHOT",
   organization := "com.eed3si9n",
@@ -30,7 +32,9 @@ lazy val root = (project in file(".")).
 lazy val library = (project in file("library")).
   settings(buildSettings: _*).
   settings(
-    libraryDependencies ++= libDeps.value
+    name := "tetrix_library",
+    libraryDependencies ++= libDeps.value,
+    exportJars := true
   )
 
 lazy val swing = (project in file("swing")).
@@ -38,5 +42,17 @@ lazy val swing = (project in file("swing")).
   settings(
     fork in run := true,
     libraryDependencies += swingDependencies.value
+  ).
+  dependsOn(library)
+
+lazy val droid = (project in file("android")).
+  settings(buildSettings: _*).
+  settings(androidBuild: _*).
+  settings(
+    platformTarget in Android := "android-16",
+    proguardOptions in Android ++= Seq("-dontwarn sun.misc.Unsafe",
+      """-keep class akka.** {
+        |  public <methods>;
+        |}""".stripMargin)
   ).
   dependsOn(library)
