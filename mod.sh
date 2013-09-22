@@ -2,7 +2,7 @@
 
 ## mod.sh 2
 
-withzero=0$1
+withzero=$1
 
 mkdir docs/$withzero
 mkdir docs.ja/$withzero

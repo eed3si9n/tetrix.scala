@@ -16,8 +16,9 @@ class Agent {
       vs.map(_._2).sorted.zipWithIndex.dropWhile(x => x._1 == x._2).map(_._1 + 1) }
     math.sqrt( (heights ++ coverups) map { x => x * x } sum)
   }
-  def bestMove(s0: GameState): StageMessage = {
-    var retval: Seq[StageMessage] = Nil 
+  def bestMove(s0: GameState): StageMessage = bestMoves(s0).headOption getOrElse {Drop}
+  def bestMoves(s0: GameState): Seq[StageMessage] = {
+    var retval: Seq[StageMessage] = Drop :: Nil 
     var current: Double = minUtility
     stopWatch("bestMove") {
       val nodes = actionSeqs(s0) map { seq =>
@@ -26,7 +27,7 @@ class Agent {
         val u = utility(s1)
         if (u > current) {
           current = u
-          retval = seq
+          retval = ms
         } // if
         SearchNode(s1, ms, u)
       }
@@ -37,13 +38,13 @@ class Agent {
           val u = utility(s2)
           if (u > current) {
             current = u
-            retval = node.actions ++ seq
+            retval = node.actions
           } // if
         }
       }
     } // stopWatch
-    println("selected " + retval + " " + current.toString)
-    retval.headOption getOrElse {Drop}
+    // println("selected " + retval + " " + current.toString)
+    retval
   }
   case class SearchNode(state: GameState, actions: Seq[StageMessage], score: Double)
 
@@ -68,14 +69,6 @@ class Agent {
       t <- translationSeqs
     } yield r ++ t
   }
-  private[this] def toTrans(message: StageMessage): GameState => GameState =
-    message match {
-      case MoveLeft  => moveLeft
-      case MoveRight => moveRight
-      case RotateCW  => rotateCW
-      case Tick      => tick
-      case Drop      => drop 
-    }
   private[this] def orientation(kind: PieceKind): Int = kind match {
     case IKind => 2
     case JKind => 4
@@ -102,7 +95,7 @@ class Agent {
     val t0 = System.currentTimeMillis
     val retval: A = arg
     val t1 = System.currentTimeMillis
-    println(name + " took " + (t1 - t0).toString + " ms")
+    // println(name + " took " + (t1 - t0).toString + " ms")
     retval
   }
 }
