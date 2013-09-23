@@ -38,8 +38,8 @@ To run scripting tests:
 To install tetrix_android to your phone:
 
 ```
-> project tetrix_android
-> android:install-device
+> project droid
+> android:run
 ```
 
 License
