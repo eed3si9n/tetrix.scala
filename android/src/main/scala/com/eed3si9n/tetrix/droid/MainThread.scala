@@ -24,7 +24,11 @@ class MainThread(holder: SurfaceHolder, context: Context) extends Thread {
   val blockMargin = 1  
 
   override def run {
-    ui = Some(new AbstractUI)
+    val config = Config(
+      minActionTime = 51,
+      maxThinkTime = 1000,
+      onDrop = None)
+    ui = Some(new AbstractUI(config))
     var isRunning: Boolean = true
     while (isRunning) {
       val t0 = System.currentTimeMillis
@@ -38,11 +42,11 @@ class MainThread(holder: SurfaceHolder, context: Context) extends Thread {
   def setCanvasSize(w: Int, h: Int) {
     canvasWidth = w
     canvasHeight = h
+    blockSize = canvasHeight / 22
+    bluishSilver.setTextSize(blockSize)
   }
   def drawViews(view1: GameView, view2: GameView) =
     withCanvas { g =>
-      blockSize = canvasHeight / 22
-      bluishSilver.setTextSize(blockSize)
       g drawRect (0, 0, canvasWidth, canvasHeight, bluishGray)
       val unit = blockSize + blockMargin
       val xOffset = canvasWidth / 2

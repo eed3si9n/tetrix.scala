@@ -53,17 +53,31 @@ class StageActor(stateActor: ActorRef) extends Actor {
   }
 }
 
+case class Config(
+  minActionTime: Long,
+  maxThinkTime: Long,
+  onDrop: Option[StageMessage])
+
 sealed trait AgentMessage
-case class BestMove(s: GameState) extends AgentMessage
+case class BestMoves(s: GameState, config: Config) extends AgentMessage
 
 class AgentActor(stageActor: ActorRef) extends Actor {
   private[this] val agent = new Agent
 
   def receive = {
-    case BestMove(s: GameState) =>
-      val message = agent.bestMove(s, 1000)
-      if (message == Drop) stageActor ! Tick
-      else stageActor ! message 
+    case BestMoves(s, config) =>
+      agent.bestMoves(s, config.maxThinkTime) match {
+        case Seq(Tick) => // do nothing
+        case Seq(Drop) => config.onDrop map { stageActor ! _ }
+        case ms        =>
+          ms foreach { _ match {
+            case Tick | Drop => // do nothing
+            case m           =>
+              stageActor ! m
+              Thread.sleep(config.minActionTime)
+          }}
+      }
+      sender ! ()
   }
 }
 
@@ -71,18 +85,18 @@ sealed trait GameMasterMessage
 case object Start
 
 class GameMasterActor(stateActor1: ActorRef, stateActor2: ActorRef,
-    agentActor: ActorRef) extends Actor {
+    agentActor: ActorRef, config: Config) extends Actor {
   def receive = {
     case Start => loop 
   }
   private[this] def loop {
-    val minActionTime = 337
     var s = getStatesAndJudge._2
     while (s.status == ActiveStatus) {
       val t0 = System.currentTimeMillis
-      agentActor ! BestMove(getState2)
+      val future = (agentActor ? BestMoves(getState2, config))(60 second)
+      Await.result(future, 60 second)
       val t1 = System.currentTimeMillis
-      if (t1 - t0 < minActionTime) Thread.sleep(minActionTime - (t1 - t0))
+      if (t1 - t0 < config.minActionTime) Thread.sleep(config.minActionTime - (t1 - t0))
       s = getStatesAndJudge._2
     }
   }

@@ -6,7 +6,7 @@ class AgentSpec extends Specification with StateExample { def is =            s2
   Utility function should
     evaluate initial state as 0.0,                                            $utility1
     evaluate GameOver as -1000.0,                                             $utility2
-    evaluate an active state by lineCount                                     $utility3
+    evaluate an active state by lastDeleted - 1                               $utility3
 
   Penalty function should
     penalize having blocks stacked up high                                    $penalty1
@@ -33,7 +33,7 @@ class AgentSpec extends Specification with StateExample { def is =            s2
     agent.utility(gameOverState) must_== -1000.0
   def utility3 = {
     val s = Function.chain(Nil padTo (19, tick))(s3)
-    agent.reward(s) must_== 1.0
+    agent.reward(s) must_== 0.0
   }
   def penalty1 = {
     val s = newState(Seq(
@@ -49,7 +49,7 @@ class AgentSpec extends Specification with StateExample { def is =            s2
     val s = newState(Seq(
       (0, 0), (2, 0), (0, 1), (1, 1), (2, 1), (3, 1))
       map { Block(_, TKind) }, (10, 20), TKind :: TKind :: Nil)
-    agent.penalty(s) must beCloseTo(44.02, 0.01) 
+    agent.penalty(s) must beCloseTo(44.09, 0.01) 
   }
   def penalty3 = {
     val s = newState(Seq(

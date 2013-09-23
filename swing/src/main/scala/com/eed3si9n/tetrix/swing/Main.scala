@@ -18,7 +18,10 @@ object Main extends SimpleSwingApplication {
   val blockMargin = 1
   val mainPanelSize = new Dimension(700, 400)
 
-  val ui = new AbstractUI
+  val config = Config(minActionTime = 151,
+    maxThinkTime = 1500,
+    onDrop = Some(Tick))
+  val ui = new AbstractUI(config)
 
   def onKeyPress(keyCode: Value) = keyCode match {
     case Left  => ui.left()

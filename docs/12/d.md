@@ -57,30 +57,3 @@ Android has its own library for widgets and graphics. They are all well-document
     }
   }
 ```
-
-To load it on the emulator, select the device and `android:run`:
-
-```
-tetrix_droid> devices
-[info] Connected devices:
-[info]   emulator-5554          test_adv16
-tetrix_droid> device emulator-5554
-[info] default device: emulator-5554
-tetrix_droid> android:run
-[info] Generating R.java
-[info] [debug] cache hit, skipping proguard!
-[info] classes.dex is up-to-date
-[info] Debug package does not need signing: tetrix_droid-debug-unaligned.apk
-[info] zipaligned: tetrix_droid-debug.apk
-[info] Installing...
-```
-
-It did showed up on the emulator.
-
-![day12c](http://eed3si9n.com/images/tetrix-in-scala-day12c.png)
-
-To really get the feeling on how it works, let's load on a phone. Here's tetrix running on my htc one:
-
-![day12d](http://eed3si9n.com/images/tetrix-in-scala-day12d.jpg)
-
-Anyway, this is going to be the end of our tetrix in Scala series. Thanks for the comments and retweets. I'd like to hear what you think. Also, if you are up for the challenge, send me a pull request of a smarter agent-actor that can beat human!

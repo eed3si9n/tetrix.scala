@@ -1,6 +1,6 @@
 package com.eed3si9n.tetrix
 
-class AbstractUI {
+class AbstractUI(config: Config) {
   import akka.actor._
   import akka.pattern.ask
   import scala.concurrent.duration._
@@ -24,7 +24,7 @@ class AbstractUI {
   private[this] val agentActor = system.actorOf(Props(new AgentActor(
     stageActor2)), name = "agentActor")
   private[this] val masterActor = system.actorOf(Props(new GameMasterActor(
-    stateActor1, stateActor2, agentActor)), name = "masterActor")
+    stateActor1, stateActor2, agentActor, config: Config)), name = "masterActor")
   private[this] val tickTimer1 = system.scheduler.schedule(
     0 millisecond, 701 millisecond, stageActor1, Tick)
   private[this] val tickTimer2 = system.scheduler.schedule(

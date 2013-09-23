@@ -57,30 +57,3 @@ Android にはウィジェットやグラッフィクなどに独自のライブ
     }
   }
 ```
-
-エミュレータに読み込むためには、device を選択して `android:run` を実行する:
-
-```
-tetrix_droid> devices
-[info] Connected devices:
-[info]   emulator-5554          test_adv16
-tetrix_droid> device emulator-5554
-[info] default device: emulator-5554
-tetrix_droid> android:run
-[info] Generating R.java
-[info] [debug] cache hit, skipping proguard!
-[info] classes.dex is up-to-date
-[info] Debug package does not need signing: tetrix_droid-debug-unaligned.apk
-[info] zipaligned: tetrix_droid-debug.apk
-[info] Installing...
-```
-
-エミュレータに表示された。
-
-![day12c](http://eed3si9n.com/images/tetrix-in-scala-day12c.png)
-
-実際の動作を確認するために実機に載せてみよう。これは僕の htc one で実行された tetrix だ:
-
-![day12d](http://eed3si9n.com/images/tetrix-in-scala-day12d.jpg)
-
-さて、Scala で書く tetrix もこれで最終回だ。コメントやリツイートありがとう。意見や至らない所があれば是非聞かせてほしい。それから、腕に自信がある人は人間を倒せるぐらい頭の良いエージェントアクターを pull request で送ってほしい!

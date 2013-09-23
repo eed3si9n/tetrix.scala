@@ -7,8 +7,10 @@ class Agent {
   private[this] val minUtility = -1000.0 
   def utility(state: GameState): Double =
     if (state.status == GameOver) minUtility
-    else reward(state) - penalty(state) / 1000.0
-  def reward(s: GameState): Double = s.lineCount.toDouble
+    else reward(state) + (penalty(state) / minUtility)
+  def reward(s: GameState): Double =
+    if (s.lastDeleted < 2) 0
+    else s.lastDeleted
   def penalty(s: GameState): Double = {
     val groupedByX = s.unload(s.currentPiece).blocks map {_.pos} groupBy {_._1}
     val heights = groupedByX map { case (k, v) => (k, v.map({_._2 + 1}).max) }
@@ -22,14 +24,14 @@ class Agent {
     val crevasses = (-1 to s.gridSize._1 - 2) flatMap { x =>
       val down = hWithDefault(x + 1) - hWithDefault(x)
       val up = hWithDefault(x + 2) - hWithDefault(x + 1)
-      if (down < -2 && up > 2) Some(math.min(crevassesWeight * hWithDefault(x), crevassesWeight * hWithDefault(x + 2)))
+      if (down < -3 && up > 3) Some(math.min(crevassesWeight * hWithDefault(x), crevassesWeight * hWithDefault(x + 2)))
       else None
     }
     val coverupWeight = 1
     val coverups = groupedByX flatMap { case (k, vs) =>
-      if (vs.size < heights(k)) Some(coverupWeight * 1)
+      if (vs.size < heights(k)) Some(coverupWeight * heights(k))
       else None
-    }   
+    }
     math.sqrt((weightedHeights ++ crevasses ++ coverups) map { x => x * x } sum)
   }
   def bestMove(s0: GameState, maxThinkTime: Long): StageMessage =
