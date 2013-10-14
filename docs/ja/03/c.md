@@ -2,9 +2,9 @@
 out: drop.html
 ---
 
-### drop
+### 落下
 
-To speed up the game, the user should be able to drop the current piece until it hits something.
+ゲームを早めるのに現在のピースを他の何かに当たるまで落とせる機能がほしい。
 
 ```scala
                                                                               s2"""
@@ -20,7 +20,7 @@ To speed up the game, the user should be able to drop the current piece until it
     )).inOrder
 ```
 
-One way to implement this is to call `transit {_.moveBy(0.0, -1.0)}` 20 times, and then call `tick` at the end. The extra `transit` calls after hitting something would just be ignored.
+これを実装する手軽な方法に `transit {_.moveBy(0.0, -1.0)}` を 20回呼び出して最後に `tick` を呼ぶというものがある。余分な `transit` の呼び出しは当たり判定後は無視される。
 
 ```scala
   val drop: GameState => GameState = (s0: GameState) =>
@@ -28,20 +28,20 @@ One way to implement this is to call `transit {_.moveBy(0.0, -1.0)}` 20 times, a
       List(tick))(s0)
 ```
 
-This passes the test:
+テストは通過する:
 
 ```
 [info]   Dropping the current piece should
 [info]     + tick the piece until it hits something.
 ```
 
-### summary
+### まとめ
 
-The current piece now moves, rotates, and drops. The full rows are cleared, and the next pieces are visible. I say the goal of finishing up the basic feature is met.
+これで現在のピースを動かし、回転させ、落下できるようになった。埋まった列は消去され、次に出てくるピースも見えるようになった。基本機能を仕上げるという目標は一応達成したと思う。
 
-![day3](files/tetrix-in-scala-day3.png)
+![day3](../files/tetrix-in-scala-day3.png)
 
-As always, the code's up on github:
+いつもどおり、コードは github にある:
 
 ```
 \$ git fetch origin

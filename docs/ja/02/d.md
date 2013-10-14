@@ -2,11 +2,11 @@
 out: tick.html
 ---
 
-### tick
+### 時計
 
-We have `moveLeft` and `moveRight`, but no `moveDown`. This is because downward movement needs to do more. Once it detects collision agaist the floor or another block, the current piece freezes at its place and a new piece gets dropped in.
+`moveLeft` と `moveRight` があるが、`moveDown` が無い。これは下向きの動きが他にもすることがあるからだ。床か別のブロックに当たり判定が出た場合は、現在のピースが固まって、新しいピースが送り込まれる。
 
-First, the movement:
+まずは、動きから:
 
 ```scala
                                                                               s2"""
@@ -21,13 +21,13 @@ First, the movement:
     )).inOrder
 ```
 
-To get this test passed we can implement `tick` as using `moveBy`:
+取り敢えずテストが通過するように `moveBy` を使って `tick` を実装する:
 
 ```scala
   val tick      = transit { _.moveBy(0.0, -1.0) }
 ```
 
-Next, the new piece:
+次に、新しいピースの転送:
 
 ```scala
                                                                               s2"""
@@ -43,7 +43,7 @@ Next, the new piece:
     )).inOrder
 ```
 
-The `transit` method already knows the validity of the modified state. Currently it's just returning the old state using `getOrElse`. All we have to do is put some actions in there.
+`transit` メソッドは既に変更された状態の妥当性を知ってる。現在は `getOrElse` を使って古い状態を返しているだけだけど、そこで別のアクションを実行すればいい。
 
 ```scala
   private[this] def transit(trans: Piece => Piece,
@@ -55,7 +55,7 @@ The `transit` method already knows the validity of the modified state. Currently
     } getOrElse {onFail(s)}
 ```
 
-Unless `onFail` is passed in, it uses `identity` function. Here's the `tick`:
+`onFail` が渡されなければ `identity` 関数が用いられる。以下が `tick` だ:
 
 ```scala
   val tick = transit(_.moveBy(0.0, -1.0), spawn)
@@ -68,7 +68,7 @@ Unless `onFail` is passed in, it uses `identity` function. Here's the `tick`:
   }
 ```
 
-Let's see if this passes the test:
+テストを通過したか確認する:
 
 ```
 [info] Ticking the current piece should
@@ -76,9 +76,9 @@ Let's see if this passes the test:
 [info] + or spawn a new piece when it hits something
 ```
 
-### timer
+### タイマー
 
-Let's hook `tick` up to the down arrow key and a timer in the abstract UI:
+抽象UI の中で `tick` を下矢印キーとタイマーに配線しよう:
 
 ```scala
   import java.{util => ju}
@@ -95,7 +95,7 @@ Let's hook `tick` up to the down arrow key and a timer in the abstract UI:
   }
 ```
 
-This will move the current piece on its own. But since the swing UI doesn't know about it, so it won't get rendered. We can add another timer to repaint the `mainPanel` 10 fps to fix this issue:
+これで現在のピースが勝手に動くようになったけど、swing UI はそのことを知らないので描画はされない。`mainPanel` を 10 fps で再描画するタイマーを加えてこの問題を直す:
 
 ```scala
     val timer = new SwingTimer(100, new AbstractAction() {
@@ -104,29 +104,28 @@ This will move the current piece on its own. But since the swing UI doesn't know
     timer.start
 ```
 
-![day2](files/tetrix-in-scala-day2.png)
+![day2](../files/tetrix-in-scala-day2.png)
 
-### bottom line
+### 一番下の列
 
-The obvious issue here is that the bottom row is not clearing. Here's a spec that should test this:
+明らかな問題は一番下の列が消えていないことだ。以下のスペックでテストできると思う:
 
 ```scala
-                                                                              s2"""
-    It should also clear out full rows.                                       \$tick3
-                                                                              """
+    """It should also clear out full rows."""               ! tick3^
+
 ...
 
   val s3 = newState(Seq(
       (0, 0), (1, 0), (2, 0), (3, 0), (7, 0), (8, 0), (9, 0))
     map { Block(_, TKind) })
   def tick3 =
-    Function.chain(Nil padTo (18, tick))(s3).
-    blocks map {_.pos} must contain(exactly(
+  Function.chain(Nil padTo (18, tick))(s3).
+    blocks map {_.pos} must contain(
       (5, 0), (4, 17), (5, 17), (6, 17), (5, 18)
-    )).inOrder
+    ).only.inOrder 
 ```
 
-We'll get back to this tomorrow.
+続きはまた明日。
 
 ```
 \$ git fetch origin

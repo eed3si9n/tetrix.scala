@@ -2,9 +2,9 @@
 out: second-level.html
 ---
 
-### second level
+### 第二段階
 
-If we expanded the search tree to the second piece, it should roughly increase 36x fold. 360 ms is not bad. Let's try this:
+探索木を 2つ目のピースに拡張すると大まかに 36倍の時間がかかることになる。360ミリ秒は悪くない。やってみよう:
 
 ```scala
   def bestMove(s0: GameState): StageMessage = {
@@ -38,11 +38,11 @@ If we expanded the search tree to the second piece, it should roughly increase 3
   }
 ```
 
-Now it is starting to play much better. The thinking time ranged from 12 ms to 727 ms, but mostly they were around 100 or 200 ms.
+手筋が良くなってきている。思考時間は 12ミリ秒から 727ミリ秒ぐらいまで範囲があるけど、100 から 200ミリ秒ぐらいにだいたい収まっている。
 
-![day9](files/tetrix-in-scala-day9.png)
+![day9](../files/tetrix-in-scala-day9.png)
 
-I am now comfortable enough to letting it drop the pieces again:
+腕が上がってきたのでピースを落とさせてあげることにする:
 
 ```scala
 class AgentActor(stageActor: ActorRef) extends Actor {
@@ -56,15 +56,15 @@ class AgentActor(stageActor: ActorRef) extends Actor {
 }
 ```
 
-### line number
+### ライン数
 
-Let's display the number of deleted lines on the swing UI.
+消したライン数を swing UI に表示しよう。
 
 ```scala
     val unit = blockSize + blockMargin
     g drawString ("lines: " + view.lineCount.toString, 12 * unit, 7 * unit)
 ```
 
-Having this should help us track if our changes are improving the performance of the agent or not.
+これでエージェントに加える変更が性能の向上につながっているかを追跡しやすくなる。
 
-![day9b](files/tetrix-in-scala-day9b.png)
+![day9b](../files/tetrix-in-scala-day9b.png)

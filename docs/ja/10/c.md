@@ -2,16 +2,16 @@
 out: other-parameters.html
 ---
 
-### other parameters
+### 他のパラメータ
 
-This got me thinking what if I change the balance between other penalties like height?
+高さなどの他のペナルティとのバランスを変えたらどうなるかということが気になる結果となった。
 
 ```scala
     val heightWeight = 2
     val weightedHeights = heights.values map {heightWeight * _}
 ```
 
-Here are the results:
+これが結果だ:
 
 ```
 h1:c3 = lines: Vector(9, 16, 8, 15, 12)   // 12 +/- 4
@@ -21,22 +21,22 @@ h4:c3 = lines: Vector(26, 39, 11, 22, 35) // 26 +/- 13
 h5:c3 = lines: Vector(22, 25, 11, 19, 16) // 19 +/- 8
 ```
 
-This is 20 +/- 23 lines and 26 +/- 13! With h4 both the min and the max performer has degraded, but the median has increased. I like h3 because it has the largest minimum.
+20 +/- 23 ラインと 26 +/- 13 ラインという結果が出てきた! h4 は最小値と最大値が両方とも劣化したけど、中間値は増加した。僕の好みは最小値が大きい h3 だ。
 
-The only parameter we haven't tested now is `coverupsWeight`. We'll denote this as `v1`, `v2`, etc:
+まだテストしていないパラメータは `coverupsWeight` だ。これは `v1`、`v2`、と表記する:
 
 ```
 h3:c3:v1 = lines: Vector(20, 20, 20, 18, 43) // 20 +/- 23
 h3:c3:v2 = lines: Vector(11, 13, 12, 14, 17) // 13 +/- 4
 ```
 
-This is 13 +/- 4 lines, so clearly not a good idea. How about we eliminate it from penalty altogether? 
+13 +/- 4 ラインに劣化したので良いアイディアとは言えない。このペナルティごと無くしてしまったらどうだろう?
 
 ```
 h3:c3:v0 = lines: Vector(35, 34, 22, 27, 33) // 33 +/- 11
 ```
 
-The data does not lie. 33 +/- 11 lines. The cavitiy analysis was useless. Here are the results from tweaking the balance of `heightWeight` and `crevasseWeight`:
+データは嘘をつかない。33 +/- 11 ラインだ。虫歯解析は無駄だったということだ。以下が `heightWeight` と `crevasseWeight` のバランスを調整した結果だ:
 
 ```
 h0:c1:v0   = lines: Vector(0, 0, 0, 1, 0)      // 0 +/- 1
@@ -56,7 +56,7 @@ h2:c1:v0   = lines: Vector(29, 29, 16, 24, 17) // 24 +/- 8
 h1:c0:v0   = lines: Vector(8, 6, 8, 11, 8)     // 8 +/- 3
 ```
 
-If we choose using median, h11:c10:v0 is the winner. Here's the modified `penalty`:
+中間値によれば h11:c10:v0 が勝者だ。以下が変更された `penalty`:
 
 ```scala
   def penalty(s: GameState): Double = {
@@ -79,11 +79,11 @@ If we choose using median, h11:c10:v0 is the winner. Here's the modified `penalt
   }
 ```
 
-The good old swing UI still works, and it plays nicely:
+swing UI も健在で、なかなか良いゲームを見せてくれるようになった:
 
-![day10](files/tetrix-in-scala-day10.png)
+![day10](../files/tetrix-in-scala-day10.png)
 
-We'll continue from here tomorrow. As always, the code is up on github.
+また明日ここから続けよう。いつもどおりコードは github に置いてある。
 
 ```
 \$ git fetch origin

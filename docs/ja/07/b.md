@@ -2,13 +2,13 @@
 out: heuristic-function.html
 ---
 
-### heuristic function
+### ヒューリスティック関数
 
-Plan B is to introduce a heuristic function. 
+作戦B はヒューリスティック関数を導入することだ。
 
-> *h(n)* = estimated cost of cheapest path from node *n* to a goal node.
+> *h(n)* = ノード *n* からゴールのノードまでの最も安価なコースにかかるコストの見積り
 
-Technically speaking we don't have a goal node, so the term may not apply here, but the idea is to approximate the situation to nudge tree searching to a right direction. In our case, we can think of it as having some penalty for bad shapes. For example, let's add penalty for having more than one height difference between the columns. We should square the gaps to make the penalty harsher.
+正確には僕らにはゴールとなるノードが無いため、この用語は当てはまらないかもしれないけど、概要としては現状を近似化して木探索を正しい方向につついてやることだ。この場合は、悪い陣形に対するペナルティを作ると考えることができる。例えば、列と列の間に 2つ以上の高さの差があることに対してペナルティを加えよう。差を自乗してペナルティが段階的に厳しくなっていくようにする。
 
 ```scala
                                                                               s2"""
@@ -23,7 +23,7 @@ Technically speaking we don't have a goal node, so the term may not apply here, 
   }
 ```
 
-The test fails as expected:
+期待通りテストは失敗する:
 
 ```
 [info] Utility function should
@@ -34,7 +34,7 @@ The test fails as expected:
 [error]    '0.0' is not equal to '-36.0' (AgentSpec.scala:10)
 ```
 
-Let's use the REPL to figure this one out. Type `console` from sbt.
+これは REPL を使って解いてみよう。sbt から `console` と打ち込む。
 
 ```scala
 Welcome to Scala version 2.10.2 (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_51).
@@ -64,7 +64,7 @@ res0: scala.collection.immutable.Map[Int,Seq[(Int, Int)]] = Map(
   0 -> List((0,0), (0,1), (0,2), (0,3), (0,4), (0,5), (0,6)))
 ```
 
-This is not good. We have the current piece loaded in `s.blocks`. But the `unload` is currently a private method within `Stage` object. We can refactor it out to `GameState` class as follows:
+これはまずい。現在のピースが `s.blocks` に入り込んでいる。`unload` は `Stage` オブジェクト内のプレイベートなメソッドだ。`GameState` クラスにリファクタリングしてみる:
 
 ```scala
 case class GameState(blocks: Seq[Block], gridSize: (Int, Int),
@@ -80,10 +80,10 @@ case class GameState(blocks: Seq[Block], gridSize: (Int, Int),
 }
 ```
 
-With minor changes to `Stage` object, all tests run expect for the current one. Now REPL again:
+`Stage` を調整すると今のテスト意外は全て通過した。REPL に戻ろう:
 
 ```scala
-... the same thing as above ...
+... 上に同じ ...
 
 scala> s.unload(s.currentPiece)
 res0: com.eed3si9n.tetrix.GameState = GameState(List(Block((0,0),TKind),
@@ -118,7 +118,7 @@ scala> gaps map {x => x * x} sum
 res5: Int = 36
 ```
 
-I did a lot more typos and experiments than above. But you get the idea. We can incrementally construct expression using the REPL by chaining one operation after another. When we get the answer, copy-past it into the editor:
+実際には上にあるよりも多くの打ち間違いや実験を行った。だけど、何をやってるかは分ってもらえると思う。REPL を使って段階的に演算をつなげていくことで式を構築することができる。答が得られたらそれをエディタにコピペすればいい:
 
 ```scala
   def utility(state: GameState): Double =
@@ -133,7 +133,7 @@ I did a lot more typos and experiments than above. But you get the idea. We can 
   }
 ```
 
-The tests pass.
+テストは通過するようになった。
 
 ```
 [info]   Utility function should
@@ -143,7 +143,7 @@ The tests pass.
 [info]     + penalize having gaps between the columns
 ```
 
-There's another problem with the current solver. Except for `Drop` the current piece is hovering midair, so it cannot be part of the evaluation. To solve this, we can simply append `Drop` unless it's already dropped. I am going to change the implementation and see which test would fail:
+現在のソルバーにはもう一つ問題がある。`Drop` 以外は現在のピースが空中に浮かんでいるため評価の対象にならないということだ。これを解決するには既に落ちていなければ `Drop` を後ろに追加すればいい。これはまず実装を変えてみてどのテストが失敗するかみてみよう:
 
 ```scala
   def bestMove(s0: GameState): StageMessage = {
@@ -163,7 +163,7 @@ There's another problem with the current solver. Except for `Drop` the current p
   }
 ```
 
-Composing the transition function with `Function.chain` again. Now let's run the test.
+`Function.chain` を使った遷移関数の合成が再び出てきた。じゃあ、テストを走らせてみよう。
 
 ```
 [info] Solver should
@@ -172,19 +172,18 @@ Composing the transition function with `Function.chain` again. Now let's run the
 [error]    'Tick' is not equal to 'Drop' (AgentSpec.scala:14)
 ```
 
-This is not surprising. Since we added `Drop` at the end, there's no difference between `Tick` and `Drop` anymore.
-We can fix this by relaxing the spec:
+これは驚くことではない。`Drop` を最後に追加したため、`Tick` と `Drop` の違いが無くなったというだけだ。スペックを緩和して直す:
 
 ```scala
   def solver2 =
     agent.bestMove(s3) must beOneOf(Drop, Tick)
 ```
 
-Now the agent started to pick moves other than `MoveLeft`, but it's preferring the left side of the grid a lot more.
+これでエージェントは `MoveLeft` 以外の動作も選びはじめたけども、まだグリッドの左にかなり偏っている。
 
-![day7b](files/tetrix-in-scala-day7b.png)
+![day7b](../files/tetrix-in-scala-day7b.png)
 
-Deepening the search tree should hopefully make things better. We'll get back to this tomorrow.
+探索木を深くすればましになってくれると思う。続きはまた明日。
 
 ```
 \$ git fetch origin

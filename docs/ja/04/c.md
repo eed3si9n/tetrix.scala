@@ -2,9 +2,9 @@
 out: game-status.html
 ---
 
-### game status
+### ゲームステータス
 
-Let's implement a small feature too. During the spawning process collision against existing blocks are not checked. If the new piece collides, it should end the game. Here's the spec:
+小さくてもいいから何か機能も追加しよう。新しいピースの転送処理の時に既存のブロックに対する当たり判定が行われていない。もし新しいピースに当たりが検知された場合はゲームは終了するべきだ。以下がスペックになる:
 
 ```scala
                                                                               s2"""
@@ -18,7 +18,7 @@ Let's implement a small feature too. During the spawning process collision again
     GameOver
 ```
 
-Let's define `GameStatus` trait:
+コンパイルが通るように `GameStatus` トレイトから定義していく:
 
 ```scala
 sealed trait GameStatus
@@ -26,7 +26,7 @@ case object ActiveStatus extends GameStatus
 case object GameOver extends GameStatus
 ```
 
-The test fails as expected after adding it to the `GameStatus`:
+これを `GameStatus` に追加すると期待通りテストが失敗するようになった:
 
 ```
 [info] Spawning a new piece should
@@ -34,7 +34,7 @@ The test fails as expected after adding it to the `GameStatus`:
 [error]    'ActiveStatus' is not equal to 'GameOver' (StageSpec.scala:29)
 ```
 
-Current implementation of `spawn` is loading `nextPiece` without checking for collision:
+`spawn` の現行の実装は `nextPiece` を当たり判定無しで取り込んでいる:
 
 ```scala
   private[this] lazy val spawn: GameState => GameState =
@@ -47,7 +47,7 @@ Current implementation of `spawn` is loading `nextPiece` without checking for co
   }
 ```
 
-All we have to do is validate the piece before loading it in.
+ピースを取り込む前に検証に通そう。
 
 ```scala
   private[this] lazy val spawn: GameState => GameState =
@@ -65,7 +65,7 @@ All we have to do is validate the piece before loading it in.
   }
 ```
 
-Next, reject state transition during `GameOver` status:
+次に、ステータスが `GameOver` のときは状態遷移を禁止する:
 
 ```scala
   private[this] def transit(trans: Piece => Piece,
@@ -77,7 +77,7 @@ Next, reject state transition during `GameOver` status:
     }
 ```
 
-Let's rub it into the player.
+プレーヤにも一言言っておく。
 
 ```scala
     view.status match {
@@ -89,9 +89,9 @@ Let's rub it into the player.
     }
 ```
 
-![day4](files/tetrix-in-scala-day4.png)
+![day4](../files/tetrix-in-scala-day4.png)
 
-As always, the code's up on github:
+いつもどおり、コードは github にある:
 
 ```
 \$ git fetch origin

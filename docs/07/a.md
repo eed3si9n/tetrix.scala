@@ -24,7 +24,7 @@ Running the swing UI, the agent actually takes over the game and starts solving 
 ...
 ```
 
-![day7](http://eed3si9n.com/images/tetrix-in-scala-day7.png)
+![day7](files/tetrix-in-scala-day7.png)
 
 And it's so dumb!
 

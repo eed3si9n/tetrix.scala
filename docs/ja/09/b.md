@@ -2,9 +2,9 @@
 out: cavity.html
 ---
 
-### cavity
+### 虫歯
 
-One thing I've been noticing as the agent plays the game is that it is happy to make cavities. A cavity is created when one or more block exists above an unfilled spot. 
+エージェントがゲームをプレイするのを見てて思うのが、虫歯を作るのを何とも思っていないということだ。埋まってないスポットの上に 1つまたは複数のブロックがある状態のことを虫歯と呼んでいる。
 
 ```
 -fig 1----
@@ -16,7 +16,7 @@ x x xxxxxx
 ----------
 ```
 
-Likely to avoid the height penalty, it would for example lay out the I bar flat on top of uneven surface instead of dropping it upright. To minimize the cavity, I'd like it to play:
+高さによるペナルティを回避するために、例えば凸凹の表面に I字のバーを垂直に落とすのではなく、平らに寝かせたりする。僕としては虫歯を最小化して以下のようにプレイしてほしい:
 
 ```
 -fig 2-----
@@ -28,7 +28,7 @@ x xxxxxxxx
 ----------
 ```
 
-Let's cauculate the height penalties from the first four columns.
+最初の 4列に注目して高さによるペナルティを計算してみよう。
 
 ```scala
 scala> val fig1 = math.sqrt(List(2, 2, 2, 2) map { x => x * x } sum)
@@ -38,7 +38,7 @@ scala> val fig2 = math.sqrt(List(1, 0, 4, 1) map { x => x * x } sum)
 fig2: Double = 4.242640687119285
 ```
 
-As predicted, fig1 will incur lower penalty. We can create additional penalty for all blocks covering another block using its height * height. Then the new penalty becomes as follows:
+予想通り fig1 の方がペナルティが低くなる。別のブロックを覆っている全てのブロックに対しても、高さ*高さのべナルティを課そう。新しいペナルティは以下のとおり:
 
 ```scala
 scala> val fig1b = math.sqrt(List(2, 2, 2, 2, 2, 2) map { x => x * x } sum)
@@ -48,7 +48,7 @@ scala> val fig2b = math.sqrt(List(1, 0, 4, 1) map { x => x * x } sum)
 fig2b: Double = 4.242640687119285
 ```
 
-This time, fig2 is preferred. Let's write this in spec:
+今回は fig2 の方が優先される。スペックに書いてみよう:
 
 ```scala
                                                                               s2"""
@@ -65,7 +65,7 @@ This time, fig2 is preferred. Let's write this in spec:
   }
 ```
 
-The test fails as expected:
+期待通りテストは失敗する:
 
 ```
 [info] Penalty function should
@@ -74,7 +74,7 @@ The test fails as expected:
 [error]    4.0 is not close to 4.89 +/- 0.01 (AgentSpec.scala:13)
 ```
 
-Let's implement this using the REPL:
+REPL を使って実装する:
 
 ```scala
 scala>     val s = newState(Seq(
@@ -104,7 +104,7 @@ scala> val coverups = groupedByX flatMap { case (k, vs) =>
 coverups: scala.collection.immutable.Iterable[Int] = List(2, 2)
 ```
 
-Here's the resulting `penalty`:
+できあがった `penalty` だ:
 
 ```scala
   def penalty(s: GameState): Double = {
@@ -116,7 +116,7 @@ Here's the resulting `penalty`:
   }
 ```
 
-This passes the test:
+これでテストが通る:
 
 ```scala
 [info]   Penalty function should
@@ -124,11 +124,11 @@ This passes the test:
 [info]     + penalize having blocks covering other blocks
 ```
 
-Let's see how it plays:
+ゲームをプレイさせてみよう:
 
-![day9c](files/tetrix-in-scala-day9c.png)
+![day9c](../files/tetrix-in-scala-day9c.png)
 
-The cavity avoidance is working, but almost too well. Maybe we should reinstate the gap penalty tomorrow.
+虫歯の回避はうまくいったが、効きすぎているかもしれない。明日に段差のペナルティを再び導入する必要があるかもしれない。
 
 ```
 \$ git fetch origin

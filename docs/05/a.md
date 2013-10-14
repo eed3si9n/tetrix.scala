@@ -36,7 +36,7 @@ Next, filter to only the blocks within the range:
 
 Now the newly spawned piece creeps from the top edge of the grid.
 
-![day5](http://eed3si9n.com/images/tetrix-in-scala-day5.png)
+![day5](files/tetrix-in-scala-day5.png)
 
 As always, the code's up on github:
 

@@ -2,9 +2,9 @@
 out: man-vs-machine.html
 ---
 
-### man vs machine
+### 人対マシン
 
-Now that the agent is tuned, the next logical step is to play against the human. Let's set up two stage actors with identical initial state. One controlled by the player, and the other controlled by the agent.
+エージェントの調整ができたので、当然次のステップは人間相手にプレイすることだ。同一の初期状態から 2つのステージアクターを用意しよう。一つはプレーヤにより制御され、もう一つはエージェントにより制御される。
 
 ```scala
   private[this] val initialState = Stage.newState(Nil,
@@ -36,7 +36,7 @@ Now that the agent is tuned, the next logical step is to play against the human.
   def space() { stageActor1 ! Drop }
 ```
 
-Currently `view` returns only one view. We should modify this to return a pair.
+現在の `view` は 1つのビューしか返さないため、ペアを返すように変更する。
 
 ```scala
   def views: (GameView, GameView) =
@@ -44,7 +44,7 @@ Currently `view` returns only one view. We should modify this to return a pair.
     Await.result((stateActor2 ? GetView).mapTo[GameView], timeout.duration))
 ```
 
-Next, the swing UI need to render both the views.
+次に swing UI が両方のビューを描画できるようにする。
 
 ```scala
   def onPaint(g: Graphics2D) {
@@ -70,11 +70,11 @@ Next, the swing UI need to render both the views.
   }
 ```
 
-Since `drawBoard` was refactored out, this was simple.
+既に `drawBoard` がリファクタ済みだったため、思ったより簡単だった。
 
-![day11](files/tetrix-in-scala-day11.png)
+![day11](../files/tetrix-in-scala-day11.png)
 
-We can let `GameMasterActor` be the referee and determine the winner if the other loses.
+`GameMasterActor` にレフェリーになってもらってどちらかが負けた時点で勝者も決定するようにする。
 
 ```scala
 case object Victory extends GameStatus
@@ -100,13 +100,13 @@ class GameMasterActor(stateActor1: ActorRef, stateActor2: ActorRef,
 }
 ```
 
-We need to display the status on the UI:
+ステータスを UI に表示しよう:
 
 ```scala
       case Victory =>
         g drawString ("you win!", offset._1, offset._2 + 8 * unit)
 ```
 
-And this is how it looks:
+こんな感じになる:
 
-![day11b](files/tetrix-in-scala-day11b.png)
+![day11b](../files/tetrix-in-scala-day11b.png)

@@ -2,11 +2,11 @@
 out: attacks.html
 ---
 
-### attacks
+### 攻撃
 
-Currently two players are just playing side by side. Let's introduce attacks. Whenever a player deletes two or more lines in an action, some of the blocks should show up at the bottom of the opponent's grid on the next spawn cycle.
+今は二人のプレーヤが隣あってゲームをしているのと変りない。攻撃を導入しよう。どちらかのプレーヤが 2つ以上のラインを消した場合は、相手の次の転送サイクルの時点でグリッドの最下行にいくつかのブロックを加える。
 
-Let's spec the stage first:
+ステージのスペックに記述しよう:
 
 ```scala
                                                                               s2"""
@@ -24,31 +24,31 @@ Let's spec the stage first:
     )
 ```
 
-Stub it out:
+スタブする:
 
 ```scala
 val notifyAttack: GameState => GameState = (s0: GameState) => s0
 ```
 
-The test fails as expected:
+期待通りテストは失敗する:
 
 ```scala
 [info] Attacks should
 [error] x increment the pending attack count,
 [error]    '0' is not equal to '1' (StageSpec.scala:35)
 [error] x and change the blocks in the view on a tick.
-[error]    '(0,0), (4,17), (5,17), (6,17), (5,18)' doesn't contain in order
+[error]    '(0,0), (4,17), (5,17), (6,17), (5,18)' doesn't contain in order 
            '(1,0), (4,17), (5,17), (6,17), (5,18)' (StageSpec.scala:36)
 ```
 
-Here's the first part:
+これが最初の部分:
 
 ```scala
   val notifyAttack: GameState => GameState = (s0: GameState) =>
     s0.copy(pendingAttacks = s0.pendingAttacks + 1)
 ```
 
-The second `attack` function looks similar to `clearFullRow`:
+`attack` 関数は `clearFullRow` に似た形になる:
 
 ```scala
   val attackRandom = new util.Random(0L)
@@ -70,14 +70,14 @@ The second `attack` function looks similar to `clearFullRow`:
   }
 ```
 
-This is added to ticking process as follows:
+これは以下のように `tick` に組み込まれる:
 
 ```scala
   val tick = transit(_.moveBy(0.0, -1.0),
     Function.chain(clearFullRow :: attack :: spawn :: Nil) )
 ```
 
-All tests pass:
+これでテストは通るようになった:
 
 ```
 [info] Attacks should
@@ -85,7 +85,7 @@ All tests pass:
 [info] + and change the blocks in the view on spawn.
 ```
 
-Next, we'll use `StageActor`s to notify each other's attacks. We can let the stage report the number of lines deleted in the last tick as `lastDeleted`:
+次に `StageActor` を使ってお互いの攻撃を通知する。最後の `tick` で何行のラインが消されたかを `lastDeleted` として報告する:
 
 ```scala
 case class GameState(blocks: Seq[Block], gridSize: (Int, Int),
@@ -95,7 +95,7 @@ case class GameState(blocks: Seq[Block], gridSize: (Int, Int),
     pendingAttacks: Int = 0) {...}
 ```
 
-Add a new message type `Attack` and implement notificaton in `StageActor`:
+新しいメッセージ型の `Attack` を加えて、`StageActor` で通知を実装しよう:
 
 ```scala
 case object Attack extends StageMessage
@@ -126,15 +126,15 @@ class StageActor(stateActor: ActorRef) extends Actor {
 }
 ```
 
-This creates attacks when 2 or more lines are deleted. Here's an example:
+これで 2行以上のラインが消されると攻撃が行われるようになった。以下に例を見てみる:
 
-![day11c](files/tetrix-in-scala-day11c.png)
+![day11c](../files/tetrix-in-scala-day11c.png)
 
-The I bar is going to eliminate bottom 4 rows, creating 3 attacks.
+I字のバーが下の 4行を消して、3回の攻撃を行う。
 
-![day11d](files/tetrix-in-scala-day11d.png)
+![day11d](../files/tetrix-in-scala-day11d.png)
 
-We'll pick it up from here tomorrow.
+続きはまた明日。
 
 ```
 \$ git fetch origin

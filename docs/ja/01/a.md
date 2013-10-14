@@ -2,9 +2,9 @@
 out: drawing-the-game.html
 ---
 
-### drawing the game
+### ゲームの描画
 
-This is enough information to start drawing the game better.
+これはゲームの描画を改善するのに十分な情報だ。
 
 ```scala
   def onPaint(g: Graphics2D) {
@@ -36,11 +36,11 @@ This is enough information to start drawing the game better.
   }
 ```
 
-Now that we have a way to visualize the game state, we should implement some moves.
+ゲームの状態が可視化できたところで、次は振る舞いも実装してみよう。
 
-### stage
+### ステージ
 
-We need a better way of representing the current piece besides a sequence of blocks. A `Piece` class should keep the current position in `(Double, Double)` and calculate the `current` from the local coordinate system.
+現在のピースを表すのにブロックの列よりもいい方法が必要だ。`Piece` クラスは現在位置を `(Double, Double)` で保持して `current` をローカル座標系から算出する。
 
 ```scala
 case class Piece(pos: (Double, Double), kind: PieceKind, locals: Seq[(Double, Double)]) {
@@ -57,7 +57,7 @@ case object Piece {
 }
 ```
 
-This allows us to define `Stage` which enforces the physics within the game world.
+これを使ってゲームの世界の物理系を司る `Stage` を定義できる。
 
 ```scala
 package com.eed3si9n.tetrix
@@ -70,16 +70,16 @@ class Stage(size: (Int, Int)) {
 }
 ```
 
-To move the current piece, it is unloaded from the grid, moved to a new position, and then reloaded back in.
+現在のピースを移動させるには、まずそれをグリッドから外に出して (unload)、新しい位置に移動し、グリッドに再読み込みする。
 
-Here's the `moveBy` for `Piece` class:
+`Piece` クラスの `moveBy` はこうなる:
 
 ```scala
   def moveBy(delta: (Double, Double)): Piece =
     copy(pos = (pos._1 + delta._1, pos._2 + delta._2))
 ```
 
-and here's the unloading and loading:
+これが unload と load だ:
 
 ```scala
 class Stage(size: (Int, Int)) {
@@ -103,9 +103,9 @@ class Stage(size: (Int, Int)) {
 }
 ```
 
-### wiring it up
+### つなげる
 
-Let's wire the stage up to the abstract UI:
+ステージを抽象UI につなげてみよう:
 
 ```scala
 package com.eed3si9n.tetrix
@@ -128,6 +128,6 @@ class AbstractUI {
 }
 ```
 
-You should be able run swing UI and see the piece move.
+これで swing UI を起動するとピースが移動するのが確認できるはずだ。
 
-![day1](files/tetrix-in-scala-day1.png)
+![day1](../files/tetrix-in-scala-day1.png)
