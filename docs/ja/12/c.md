@@ -8,7 +8,7 @@ Android のアプリは主にアクティビティ、ビュー、スレッドか
 
 まずは `android/src/main/AndroidManifest.xml` を作る。これは画面を横持ちに強制する:
 
-```
+```xml
 <manifest package="com.eed3si9n.tetrix.droid" xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-sdk android:minSdkVersion="16"></uses-sdk>
     <application android:label="@string/app_name">
@@ -45,7 +45,7 @@ class MainActivity extends Activity {
 
 レイアウトファイルは `droid/src/main/res/layout/main.xml`:
 
-```
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:orientation="horizontal"
