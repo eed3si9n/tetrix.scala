@@ -8,7 +8,8 @@ class StageSpec extends Specification with StateExample { def is =            s2
 
   Moving to the left the current piece should
     change the blocks in the view                                             $left1
-    as long as it doesn't hit the wall.                                       $leftWall1
+    as long as it doesn't hit the wall,                                       $leftWall1
+    or another block in the grid.                                             $leftHit1
 
   Moving to the right the current piece should
     change the blocks in the view.                                            $right1
